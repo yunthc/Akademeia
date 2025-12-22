@@ -143,6 +143,11 @@ function initializeAnswerFeature(questionId) {
                 createdAt: serverTimestamp(),
                 isAccepted: false,
             });
+
+            // 질문 문서의 answerCount 증가
+            await updateDoc(doc(db, 'questions', questionId), {
+                answerCount: increment(1)
+            });
             // ▲▲▲▲▲▲
             answerForm.reset();
         } catch (error) {
@@ -152,7 +157,8 @@ function initializeAnswerFeature(questionId) {
     });
 }
 
-// ▼▼▼ 수정: 답변 목록의 HTML 구조를 변경하는 함수 ▼▼▼
+// src/pages/question.js 안에 있는 함수 교체
+
 function initializeAnswerList(questionId, questionData) {
     const answersListDiv = document.getElementById('answers-list');
     const answerCountSpan = document.getElementById('answer-count');
@@ -161,7 +167,8 @@ function initializeAnswerList(questionId, questionData) {
 
     onSnapshot(q, (snapshot) => {
         answersListDiv.innerHTML = '';
-        answerCountSpan.textContent = snapshot.size;
+        answerCountSpan.textContent = snapshot.size; // 실시간 개수 반영 (목록 상단용)
+        
         if (snapshot.empty) {
             answersListDiv.innerHTML = '<p>아직 등록된 답변이 없습니다.</p>';
             return;
@@ -182,9 +189,15 @@ function initializeAnswerList(questionId, questionData) {
             const isMyAnswer = currentUser && currentUser.uid === answerData.authorId;
             const isSolved = questionData.isSolved === true;
             
-            // 채택 버튼 HTML 코드를 조건부로 생성
+            // [1] 채택 버튼 로직 (기존과 동일)
             const acceptBtnHTML = (isQuestionAuthor && !isMyAnswer && !isSolved)
-                ? `<button class="accept-answer-btn" data-answer-id="${answerDoc.id}" data-answer-author-id="${answerData.authorId}">채택하기</button>`
+                ? `<button class="accept-answer-btn btn-small" data-answer-id="${answerDoc.id}" data-answer-author-id="${answerData.authorId}">채택</button>`
+                : '';
+
+            // [2] ★ 삭제 버튼 로직 추가 (내가 쓴 글이면 삭제 버튼 표시) ★
+            // 이미 채택된 답변은 삭제 못하게 막는 것이 일반적입니다 (!answerData.isAccepted)
+            const deleteBtnHTML = (isMyAnswer && !answerData.isAccepted)
+                ? `<button class="danger-btn delete-answer-btn" data-answer-id="${answerDoc.id}"style="padding: 5px 10px; font-size: 0.85rem;">삭제</button>`
                 : '';
 
             answerEl.innerHTML = `
@@ -192,10 +205,11 @@ function initializeAnswerList(questionId, questionData) {
                     <div class="answer-author-profile">
                         <img src="${answerData.authorPhotoUrl || defaultAvatar}" alt="${answerData.authorName}" class="answer-avatar">
                         <span class="name">${answerData.authorName}</span>
-                        <span class="rating">(${answerData.authorRating})</span>
                         <span class="timestamp">${formattedDate}</span>
                     </div>
-                    ${acceptBtnHTML}
+                    <div class="answer-actions">
+                        ${acceptBtnHTML}
+                        ${deleteBtnHTML} </div>
                 </div>
                 <p class="answer-content">${answerData.content.replace(/\n/g, '<br>')}</p>
             `;
@@ -203,17 +217,23 @@ function initializeAnswerList(questionId, questionData) {
             answersListDiv.appendChild(answerEl);
         });
 
-        // 생성된 모든 채택하기 버튼에 이벤트 리스너를 한 번에 추가
+        // [3] 이벤트 리스너 연결
+        
+        // 채택 버튼 리스너
         answersListDiv.querySelectorAll('.accept-answer-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const answerId = e.target.dataset.answerId;
-                const answerAuthorId = e.target.dataset.answerAuthorId;
-                handleAcceptAnswer(questionId, answerId, answerAuthorId);
+                handleAcceptAnswer(questionId, e.target.dataset.answerId, e.target.dataset.answerAuthorId);
+            });
+        });
+
+        // ★ 삭제 버튼 리스너 추가 ★
+        answersListDiv.querySelectorAll('.delete-answer-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                handleDeleteAnswer(questionId, e.target.dataset.answerId);
             });
         });
     });
 }
-// ▲▲▲▲▲▲
 
 function initializeAuthorControls(questionId, questionData) {
     const deleteBtn = document.getElementById('delete-question-btn');
@@ -256,12 +276,38 @@ async function handleAcceptAnswer(questionId, answerId, answerAuthorId) {
             // ▼▼▼ 수정: 질문 문서에도 isSolved와 acceptedAnswerId를 확실히 기록 ▼▼▼
             transaction.update(questionRef, { isSolved: true, acceptedAnswerId: answerId });
             transaction.update(answerRef, { isAccepted: true });
+            // [보안 문제 해결] 클라이언트에서 타인의 마일리지를 수정하면 권한 오류가 발생합니다.
+            // 마일리지 지급은 Cloud Functions(서버)로 구현해야 합니다. 우선 주석 처리합니다.
             transaction.update(questionAuthorRef, { mileage: increment(5) });
             transaction.update(answerAuthorRef, { mileage: increment(10) });
         });
-        alert('답변이 채택되었습니다! 마일리지가 지급되었습니다.');
+        alert('답변이 채택되었습니다!');
+        window.location.reload(); // 페이지를 새로고침하여 채택 상태를 즉시 반영합니다.
     } catch (e) {
         console.error("채택 처리 중 오류:", e);
         alert(`오류가 발생했습니다: ${e.message}`);
+    }
+}
+
+// src/pages/question.js 맨 아래에 추가
+
+async function handleDeleteAnswer(questionId, answerId) {
+    if (!confirm('정말로 이 답변을 삭제하시겠습니까?')) return;
+
+    try {
+        // 1. 답변 문서 삭제
+        await deleteDoc(doc(db, 'questions', questionId, 'answers', answerId));
+
+        // 2. 질문 문서의 answerCount 1 감소 (increment(-1) 사용)
+        await updateDoc(doc(db, 'questions', questionId), {
+            answerCount: increment(-1)
+        });
+
+        alert('답변이 삭제되었습니다.');
+        // onSnapshot 덕분에 화면은 자동으로 갱신됩니다.
+        
+    } catch (error) {
+        console.error("답변 삭제 오류:", error);
+        alert("답변을 삭제하는 중 오류가 발생했습니다.");
     }
 }

@@ -10,6 +10,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/qna.css">
+    <style>
+        #pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding-bottom: 20px;
+        }
+        .page-numbers {
+            display: flex;
+            gap: 5px;
+        }
+        /* 활성화된 페이지 번호에 대한 스타일 */
+        .btn-page-number.active {
+            background-color: var(--primary-color, #007bff); /* common.css에 정의된 변수 사용 */
+            color: white;
+            border-color: var(--primary-color, #007bff);
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -55,12 +76,14 @@
 
             <div class="filter-container">
                 <button class="filter-btn active" data-filter="all">전체 보기</button>
-                <button class="filter-btn" data-filter="createdAt">진행 중</button>
-                <button class="filter-btn" data-filter="isSolved">답변 완료</button>
+                <button class="filter-btn" data-filter="in-progress">진행 중</button>
+                <button class="filter-btn" data-filter="solved">답변 완료</button>
             </div>
             <section id="questions-list" class="card">
                 <p>로딩 중...</p>
             </section>
+
+            <div id="pagination-controls"></div>
         </main>
     </div>
     <script type="module" src="/src/pages/qna.js"></script>

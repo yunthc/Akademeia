@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4-A. 고스트가 없다면 (신규 문제), 가상의 고스트를 생성합니다.
             //console.log(`[매칭 정보] ${selectedProblem.id}번은 신규 문제입니다. 가상 고스트를 생성합니다.`);
             selectedGhost = {
-                nickname: "최초의 도전자",
+                nickname: "Admin",
                 rating: selectedProblem.difficulty,
                 firstAttemptTime: Math.random() * 5 + 40,
                 firstAttemptIsCorrect: false,
