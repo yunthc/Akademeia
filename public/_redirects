@@ -1,0 +1,2 @@
+# 메인 도메인으로 들어오면 자동으로 /pages/index.html로 보내줘라
+/   /pages/index.html   301
