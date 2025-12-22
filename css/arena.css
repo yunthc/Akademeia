@@ -1,0 +1,333 @@
+/* --- Arena Layout --- */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1rem 0rem;
+}
+
+#game-screen, #loading-screen, #result-screen .card {
+    width: 100%;
+    max-width: 700px;
+    padding: 1.5rem 1rem;
+    box-sizing: border-box;
+}
+
+#game-screen.hidden, #loading-screen.hidden, #result-screen.hidden {
+    display: none;
+}
+
+/* --- Player Info & Timer (Top Section) --- */
+.player-info-container {
+    /* PC에서는 기존과 동일하게 가로로 배치 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.player-info-bar {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+    background-color: #f8f9fa;
+    position: relative;
+}
+
+.player-info-bar span {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.timer-bar {
+    text-align: center;
+    padding: 0 1rem;
+}
+
+#timer-display-area {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #34495e;
+    line-height: 1;
+    min-width: 80px;
+    display: inline-block;
+}
+
+#countdown-display {
+    color: #e74c3c;
+    animation: pulse 1s infinite;
+}
+
+#countdown-display.hidden, #main-timer-display.hidden {
+    display: none;
+}
+
+
+/* ▼▼▼ 모바일 화면을 위한 미디어 쿼리 수정 ▼▼▼ */
+@media (max-width: 768px) {
+    .player-info-container {
+        display: grid;
+        /* "auto 1fr" -> 왼쪽 열은 내용만큼, 오른쪽 열은 나머지 공간을 모두 차지 */
+        grid-template-columns: auto 1fr; 
+        grid-template-rows: auto auto; /* 2개의 행 */
+        grid-template-areas: 
+            "timer opponent" /* 1행: 왼쪽은 timer, 오른쪽은 opponent */
+            "timer me";       /* 2행: 왼쪽은 timer, 오른쪽은 me */
+        gap: 0.5rem 1rem;  /* 세로 간격 0.5rem, 가로 간격 1rem */
+        align-items: center;
+    }
+
+    .timer-bar {
+        grid-area: timer; /* 이 요소를 'timer' 영역에 배치 */
+        padding-right: 1rem;
+        /* 세로로 길어지므로, 좌우 패딩을 줄이고 세로 정렬을 강화 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        border-right: 1px solid #ecf0f1;
+    }
+    
+    #opponent-info-bar {
+        grid-area: opponent; /* 이 요소를 'opponent' 영역에 배치 */
+        min-width: unset;
+    }
+
+    #my-info-bar {
+        grid-area: me; /* 이 요소를 'me' 영역에 배치 */
+        min-width: unset;
+    }
+    #result-screen .result-card {
+        /* 모바일 화면에서는 너비를 90%로, 최대 너비를 500px로 제한 */
+        width: 90%;
+        max-width: 500px;
+        padding: 1.5rem; /* 내부 여백도 살짝 줄임 */
+    }
+
+    #result-title {
+        font-size: 2rem; /* '승리!' 텍스트 크기 조정 */
+        margin-bottom: 1rem;
+    }
+
+    .result-grid {
+        /* 플레이어 정보 그리드의 좌우 간격을 줄임 */
+        gap: 0.5rem;
+        padding: 1rem 0;
+    }
+
+    .result-nickname {
+        font-size: 1rem;
+    }
+    .result-rating {
+        font-size: 0.8rem;
+    }
+    .result-details {
+        font-size: 1rem;
+    }
+    .vs-text {
+        font-size: 1.2rem;
+    }
+
+    .rating-change-box h3 {
+        font-size: 0.8rem;
+    }
+    span[data-field="final-rating"] {
+        font-size: 1.5rem;
+    }
+    span[data-field="rating-change"] {
+        font-size: 1rem;
+    }
+
+    .result-actions .btn-primary,
+    .result-actions .btn-secondary,
+    .result-actions .btn-tertiary,
+    .result-actions .btn-green {
+        width: 100%; /* 버튼 너비를 꽉 채움 */
+    }
+    /* ▲▲▲ 여기까지 ▲▲▲ */
+}
+
+#countdown-display {
+    color: #e74c3c;
+    animation: pulse 1s infinite;
+}
+
+#countdown-display.hidden, #main-timer-display.hidden {
+    display: none;
+}
+
+/* --- Game Content --- */
+.game-header { text-align: center; min-height: 0px;  font-weight: 500; color: #34495e; }
+.problem-box { background-color: #f8f9fa; padding: 2rem; border-radius: 8px; margin: 1.5rem 0; font-size: 1.3rem; line-height: 1.6; text-align: center; }
+.choices-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.choice-btn { padding: 1rem; font-size: 1rem; background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+.choices-container:not(.choices-locked) .choice-btn:hover { border-color: #3498db; transform: translateY(-2px); }
+
+.choice-btn.correct-choice {
+    border-color: #3498db; /* 파란색 테두리 */
+    background-color: #eaf5fc; /* 연한 파란색 배경 */
+    color: #2980b9;
+    font-weight: bold;
+}
+
+/* 오답을 선택했을 때의 스타일 */
+.choice-btn.incorrect-choice {
+    border-color: #e74c3c; /* 빨간색 테두리 */
+    background-color: #fdedec;
+    color: #c0392b;
+}
+
+
+/* --- Feedback & State Styles --- */
+.choices-locked .choice-btn { opacity: 0.6; pointer-events: none; }
+.player-info-bar.correct-bar { border-color: #3498db; }
+.player-info-bar.incorrect-bar { border-color: #e74c3c; }
+.player-info-bar.penalty-bar { border-color: #95a5a6; }
+
+/* Penalty Bar Animation (5 seconds) */
+.player-info-bar.penalty-active::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(149, 165, 166, 0.4); border-radius: 5px; transform-origin: left; animation: deplete 5s linear forwards; }
+@keyframes deplete { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+/* --- Result Modal (수정됨) --- */
+#result-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+#result-screen:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#result-screen .result-card {
+    text-align: center;
+    padding: 2rem;
+    min-width: 500px;
+    box-sizing: border-box;
+}
+
+#result-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 2.5rem;
+}
+#result-title.승리 { color: #3498db; }
+#result-title.패배 { color: #e74c3c; }
+#result-title.무승부 { color: #34495e; }
+
+
+.result-players {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.player-result-box {
+    flex: 1;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #ecf0f1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.result-nickname {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0 0 0.25rem 0;
+}
+
+/* ▼▼▼ 닉네임 색상 클래스 추가 ▼▼▼ */
+.result-nickname.win { color: #3498db; }
+.result-nickname.loss-error { color: #e74c3c; }
+.result-nickname.loss-timeout { color: #95a5a6; }
+.result-nickname.draw { color: #34495e; }
+
+
+.result-rating {
+    margin: 0 0 0.5rem 0;
+    color: #7f8c8d;
+}
+
+.result-status {
+    font-size: 1.1rem;
+    margin: 0;
+    min-height: 1.5em; /* 공간 확보 */
+}
+
+.vs-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #bdc3c7;
+    align-self: center;
+}
+
+.rating-change-box {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.rating-change-box h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.rating-change-box p {
+    margin: 0;
+}
+
+#final-rating {
+    font-size: 2rem; /* 레이팅 폰트 키움 */
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+#rating-change-value {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+}
+
+.result-actions { 
+    display: flex; /* Flexbox 레이아웃으로 변경 */
+    flex-wrap: wrap; /* 공간이 부족하면 자동으로 줄바꿈 */
+    justify-content: center; /* 버튼들을 가운데 정렬 */
+    gap: 0.75rem; /* 버튼들 사이의 최소 간격 */
+    margin-top: 1.5rem;
+}
+
+/* result-actions의 모든 자식 요소(버튼, 링크)에 적용 */
+.result-actions > * {
+    /* flex: 1; 이 속성을 제거하여 버튼이 내용만큼의 너비를 갖도록 함 */
+    text-align: center; /* 내부 텍스트 가운데 정렬 */
+    white-space: nowrap; /* 버튼 내 텍스트 줄바꿈 방지 */
+}
+
+#status-message {
+    display: none;
+}

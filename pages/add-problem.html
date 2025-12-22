@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>새 문제 추가</title>
+    <link rel="stylesheet" href="/css/common.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            </header>
+        <main>
+            <section class="card">
+                <h2>문제 일괄 업로드 (CSV)</h2>
+                <p>정해진 양식의 CSV 파일을 업로드하여 여러 문제를 한 번에 추가합니다.<br>
+                   (헤더: question, choices, answer, grade, domain, tags, difficulty)</p>
+                <div class="file-upload-wrapper">
+                    <label for="csv-file-input" class="btn-secondary">📄 CSV 파일 선택</label>
+                    <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                    <span id="csv-file-name">선택된 파일 없음</span>
+                </div>
+                <button id="upload-csv-btn" class="btn-primary">업로드 시작</button>
+            </section>
+            </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script type="module" src="/src/pages/add-problem.js"></script>
+</body>
+</html>

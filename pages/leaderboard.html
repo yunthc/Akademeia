@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademeia: 리더보드</title>
+    <link rel="stylesheet" href="/src/styles/global.css">
+    <link rel="stylesheet" href="/src/styles/leaderboard.css"> <!-- 새로운 CSS 파일 -->
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <a href="/pages/dashboard.html" class="logo">Akademeia</a>
+            <nav class="main-nav">
+                <a href="/pages/matchmaking.html">아레나</a>
+                <a href="/pages/qna.html">Q&A</a>
+                <a href="/pages/leaderboard.html" class="active">리더보드</a> <!-- 리더보드 링크 추가 -->
+            </nav>
+            <div id="user-profile" class="user-profile hidden">
+                <a href="/pages/mypage.html">
+                    <img id="header-profile-image" src="" alt="Profile">
+                </a>
+                <div class="user-info">
+                    <a href="/pages/mypage.html" id="header-nickname" class="nickname"></a>
+                    <span id="header-rating" class="rating"></span>
+                </div>
+                <button id="logout-btn" class="btn-secondary">로그아웃</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="leaderboard-section">
+            <h1>리더보드</h1>
+            <p>상위 100명의 유저 랭킹입니다.</p>
+            <div id="leaderboard-list" class="leaderboard-container">
+                <p class="loader">랭킹을 불러오는 중...</p>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="/src/pages/leaderboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+/* src/styles/leaderboard.css */
+
+.leaderboard-section {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.leaderboard-section h1 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.leaderboard-section p {
+    margin-bottom: 2rem;
+    color: #7f8c8d;
+}
+
+.leaderboard-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.leaderboard-header,
+.leaderboard-item {
+    display: grid;
+    grid-template-columns: 50px 1fr 100px 100px;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    gap: 1rem;
+}
+
+.leaderboard-header {
+    background-color: #f7f9fa;
+    font-weight: bold;
+    color: #34495e;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.leaderboard-item {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.leaderboard-item:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-item:hover {
+    background-color: #f9f9f9;
+}
+
+.leaderboard-item .rank {
+    font-weight: bold;
+    color: #95a5a6;
+    text-align: center;
+}
+
+.leaderboard-item .nickname {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.leaderboard-item .rating {
+    font-weight: bold;
+    color: #2980b9;
+    text-align: right;
+}
+
+.leaderboard-item .grade {
+    color: #7f8c8d;
+    text-align: right;
+}
+
+/* 1, 2, 3등 특별 스타일 */
+.leaderboard-item:nth-child(2) .rank { /* nth-child는 헤더 다음 요소부터 카운트하므로 2가 1등 */
+    color: #f1c40f; /* Gold */
+    font-size: 1.2em;
+}
+
+.leaderboard-item:nth-child(3) .rank {
+    color: #bdc3c7; /* Silver */
+    font-size: 1.1em;
+}
+
+.leaderboard-item:nth-child(4) .rank {
+    color: #cd7f32; /* Bronze */
+    font-size: 1.05em;
+}
+
+.loader {
+    padding: 2rem;
+    text-align: center;
+    color: #7f8c8d;
+}

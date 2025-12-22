@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademeia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/tower.css">
+    <script>
+      MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="header-left">
+                <h1>
+                    <a href="/pages/dashboard.html">
+                        <span class="logo-icon">🏛️</span>
+                        <span class="logo-text">Akademeia</span>
+                    </a>
+                </h1>
+                <nav class="global-nav">
+                    <a href="/pages/matchmaking.html">게임</a>
+                    <a href="/pages/qna.html">Q&A</a>
+                </nav>
+            </div>
+            <div id="auth-container">
+                <div id="user-profile" class="hidden">
+                    <a href="/pages/mypage.html" class="profile-link">
+                        <img id="header-profile-image" src="" alt="프로필">
+                        <span id="header-nickname"></span>
+                        <span id="header-rating"></span>
+                    </a>
+                    <button id="logout-btn" class="auth-btn icon-btn">
+                        <span class="text-label">로그아웃</span>
+                        <span class="icon-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div id="tower-lobby" class="card">
+                <h2>진리의 탑</h2>
+                <p class="description">
+                    라이프를 모두 소진할때 까지 최대한 많은 문제를 풀어보세요. 라이프는 총 3개입니다.<br>
+                    풀기 어려운 문제를 최대 3회 패스할 수 있습니다. <br>
+                    블리츠 모드를 사용하면 초반에 빠르게 탑을 오를 수 있습니다.
+                </p>
+                <div class="status-container">
+                    <p>남은 도전 횟수: <span id="attempts-left">--/--</span></p>
+                    <p>이번 주 최고 기록: <span id="personal-best-floor">--</span>층</p>
+                </div>
+                <button id="blitz-toggle-btn" class="blitz-toggle-btn" data-state="off">블리츠 모드 꺼짐</button>
+                <button id="start-challenge-btn" class="btn-primary">도전 시작</button>
+            </div>
+
+            <div id="blitz-screen" class="card hidden">
+                <div class="blitz-header">
+                    <h2>BLITZ ROUND</h2>
+                    <div class="timer-bar-container">
+                        <div id="blitz-timer-bar" class="timer-bar orange"></div>
+                        <span id="blitz-timer-text" class="timer-text">30.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">맞힌 개수</span>
+                        <span id="blitz-solved-counter">0</span>
+                    </div>
+                </div>
+                <div class="problem-box">
+                    <p id="blitz-problem-text"></p>
+                </div>
+                <div id="blitz-choices-container" class="choices-grid"></div>
+            </div>
+
+            <div id="tower-screen" class="card hidden">
+                <div class="tower-header">
+                    <div>FLOOR <span id="floor-counter">1</span></div>
+                    <div id="lives-counter">❤️❤️❤️</div>
+                </div>
+                <div id="time-bank-bar" class="timer-bar-container">
+                    <div id="time-bank-fill" class="timer-bar green"></div>
+                    <span id="time-bank-text" class="timer-text">05:00</span>
+                </div>
+                <div class="problem-box">
+                    <p id="tower-problem-text"></p>
+                </div>
+                <div id="tower-choices-container" class="choices-grid"></div>
+                <div class="tower-footer">
+                     <button id="pass-btn" class="btn-secondary">PASS ( <span id="pass-count">3</span> )</button>
+                </div>
+            </div>
+
+            <div id="run-result-screen" class="card hidden">
+                <h2>도전 종료!</h2>
+                <div class="result-summary">
+                    <p>최고 도달 층: <span id="final-floor"></span>층</p>
+                    <p>남은 시간: <span id="final-time-bank"></span></p>
+                </div>
+                <div class="result-actions">
+                    <button id="retry-challenge-btn" class="btn-primary">다시 도전하기</button>
+                    <a href="#" id="leaderboard-link" class="btn-secondary">리더보드 보기</a>
+                    <a href="/pages/matchmaking.html" class="btn-secondary">로비로 돌아가기</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="/src/pages/tower.js"></script>
+</body>
+</html>

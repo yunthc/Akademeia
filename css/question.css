@@ -1,0 +1,300 @@
+/* css/question.css */
+#question-detail-container {
+    min-height: 200px;
+}
+
+.question-header {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+#question-title {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+#question-meta {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+}
+
+#question-body {
+    line-height: 1.8;
+}
+
+#question-image {
+    max-width: 100%; /* 이미지가 부모 요소의 최대 너비를 넘지 않도록 */
+    height: auto;    /* 높이는 비율에 맞춰 자동 조절 */
+    border-radius: 8px;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    display: block; /* 이미지 아래 여백 문제 해결 */
+}
+
+.button-container {
+    margin-bottom: 1rem;
+    text-align: right; /* 필요에 따라 center 또는 right로 변경 가능 */
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #f8f9fa; /* 밝은 배경색 */
+    color: var(--text-color);
+    text-decoration: none;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+    background-color: #e9ecef;
+}
+
+/* css/question.css 에 추가 */
+#answers-container h3 {
+    margin-top: 0;
+}
+
+.answer-item {
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem 0;
+}
+.answer-item:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.answer-meta {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.answer-meta span {
+    font-weight: 400;
+    color: var(--text-muted-color);
+}
+
+.answer-content {
+    line-height: 1.7;
+}
+
+#answer-form {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#answer-form textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+}
+
+#answer-form button {
+    align-self: flex-end;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+/* css/question.css 에 추가 */
+.title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+#author-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+#author-controls button {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+#author-controls button:hover {
+    background-color: #f0f0f0;
+}
+#delete-question-btn {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+#delete-question-btn:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
+/* css/question.css 파일 맨 아래에 추가 */
+
+/* 답변 아이템 관련 스타일 */
+.answer-item {
+    position: relative;
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem 0;
+}
+
+/* 채택된 답변에 적용될 스타일 */
+.answer-item.accepted {
+    background-color: #e8f5e9; /* 옅은 녹색 배경 */
+    border-left: 5px solid #4CAF50; /* 녹색 왼쪽 테두리 */
+    padding-left: 20px;
+    margin-left: -25px;
+    border-radius: 8px;
+}
+.answer-item.accepted .answer-meta::after {
+    content: '채택된 답변';
+    background-color: #4CAF50;
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+    margin-left: 10px;
+    font-weight: 700;
+}
+
+/* 채택하기 버튼 스타일 */
+.accept-answer-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 0;
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+.accept-answer-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* --- 채택된 답변 전용 스타일 --- */
+#accepted-answer-container {
+    background-color: #e8f5e9; /* 옅은 녹색 배경 */
+    border: 2px solid #4CAF50; /* 강조를 위한 녹색 테두리 */
+}
+
+#accepted-answer-container .accepted-badge {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+/* css/question.css 에 추가 */
+.author-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 1rem;
+}
+.author-profile img, .answer-author-profile img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.author-profile .name, .answer-author-profile .name {
+    font-weight: 700;
+}
+.author-profile .rating, .answer-author-profile .rating {
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+}
+.answer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.answer-author-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.answer-meta .timestamp {
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+}
+
+/* ▼▼▼ 수정 및 추가: 답변 아이템 헤더 스타일 ▼▼▼ */
+.answer-item .answer-header {
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝으로 요소를 분리 */
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.answer-author-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.answer-author-profile .name {
+    font-weight: 700;
+}
+
+.answer-author-profile .rating {
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+}
+
+/* 작성자 정보 옆에 붙을 날짜 스타일 */
+.answer-author-profile .timestamp {
+    font-size: 0.9rem;
+    color: var(--text-muted-color);
+    margin-left: 8px;
+}
+
+
+/* 채택하기 버튼의 position: absolute를 제거하여 제자리를 찾도록 함 */
+.accept-answer-btn {
+    position: static; /* absolute에서 변경 */
+    flex-shrink: 0; /* 버튼이 찌그러지지 않도록 */
+    margin-left: 1rem;
+}
+
+/* 채택된 답변의 뱃지 스타일도 헤더에 맞게 조정 */
+.answer-item.accepted .answer-header::after {
+    content: '채택된 답변';
+    background-color: #4CAF50;
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+/* ▲▲▲▲▲▲ */

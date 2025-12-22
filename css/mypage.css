@@ -1,0 +1,139 @@
+/* css/mypage.css */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* 화면이 좁아지면 아래로 떨어지도록 */
+}
+
+.profile-image-wrapper {
+    position: relative;
+    flex-shrink: 0; /* 이미지가 찌그러지지 않도록 */
+}
+
+#profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--border-color);
+}
+
+.profile-image-wrapper .edit-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-info h3 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+#display-nickname-wrapper, 
+#edit-nickname-wrapper,
+#display-grade-wrapper, 
+#edit-grade-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#display-grade-wrapper {
+    margin-top: 0.5rem;
+    color: var(--text-muted-color);
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-muted-color);
+    padding: 5px;
+}
+
+#edit-nickname-input {
+    padding: 8px;
+    font-size: 1.2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+
+#edit-grade-select {
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+#save-nickname-btn, 
+#cancel-nickname-btn,
+#save-grade-btn, 
+#cancel-grade-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background-color: #eee;
+    color: #333;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 2rem;
+}
+
+.stat-item h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-muted-color);
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.stat-item p {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.danger-zone {
+    border-top: 1px solid var(--border-color);
+    margin-top: 2rem;
+    padding-top: 2rem;
+    text-align: right;
+}
+
+.danger-btn {
+    background-color: white;
+    color: #a1a1a1;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.2s;
+}
+
+.danger-btn:hover {
+    background-color: #e94e3d;
+    color: white
+}

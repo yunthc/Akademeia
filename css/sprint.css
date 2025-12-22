@@ -1,0 +1,147 @@
+main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2rem;
+}
+
+#challenge-lobby, #challenge-screen, #run-result-screen { display: flex; flex-direction: column; align-items: center; }
+
+#challenge-lobby.hidden, #challenge-screen.hidden, #run-result-screen.hidden {
+    display: none;
+}
+
+/* --- Lobby Styles --- */
+#lobby-container h2 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.description {
+    text-align: center;
+    color: #7f8c8d;
+    margin-bottom: 2rem;
+}
+
+.filter-container {
+    margin-bottom: 2rem;
+    border-top: 1px solid #ecf0f1;
+    border-bottom: 1px solid #ecf0f1;
+    padding: 1.5rem 0;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.filter-group:last-child { margin-bottom: 0; }
+
+.filter-label {
+    font-weight: 500;
+    width: 80px;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #ecf0f1;
+    background-color: #ffffff;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn.selected {
+    border-color: #3498db;
+    background-color: #eaf5fc;
+    color: #2980b9;
+    font-weight: bold;
+}
+
+.status-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap; /* 공간이 부족할 시 자연스럽게 줄바꿈 허용 */
+    gap: 1rem; /* 요소들 사이의 최소 간격 */
+}
+
+.status-container p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.status-message {
+    text-align: center;
+    color: #e67e22;
+    min-height: 20px;
+}
+
+#start-challenge-btn { width: 100%; max-width: 300px; padding: 1rem; font-size: 1.2rem; align-items: center;}
+
+#start-challenge-btn:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* --- Challenge Screen Styles --- */
+.challenge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+#master-timer {
+    display: block;
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #34495e;
+    margin-bottom: 1.5rem;
+}
+
+.game-header { text-align: center; min-height: 0px;  font-weight: 500; color: #34495e; }
+.problem-box { background-color: #f8f9fa; padding: 2rem; border-radius: 8px; margin: 1.5rem 0; font-size: 1.3rem; line-height: 1.6; text-align: center; }
+.choices-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.choice-btn { padding: 1rem; font-size: 1rem; background-color: #ffffff; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+.choice-btn:hover { border-color: #3498db; transform: translateY(-2px); }
+
+
+
+
+.feedback-message {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #e74c3c;
+    min-height: 24px;
+}
+
+/* --- Result Screen Styles --- */
+#run-result-screen h2 { text-align: center; }
+.result-summary {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+.result-summary p {
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+}
+.result-summary span { font-weight: bold; }
+
+.result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}

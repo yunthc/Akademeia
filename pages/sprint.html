@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprint - Akademeia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/sprint.css">
+    <script>
+      MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="header-left">
+                <h1>
+                    <a href="/pages/dashboard.html">
+                        <span class="logo-icon">🏛️</span>
+                        <span class="logo-text">Akademeia</span>
+                    </a>
+                </h1>
+                <nav class="global-nav">
+                    <a href="/pages/matchmaking.html">게임</a>
+                    <a href="/pages/qna.html">Q&A</a>
+                </nav>
+            </div>
+            <div id="auth-container">
+                <div id="user-profile" class="hidden">
+                    <a href="/pages/mypage.html" class="profile-link">
+                        <img id="header-profile-image" src="" alt="프로필">
+                        <span id="header-nickname"></span>
+                        <span id="header-rating"></span>
+                    </a>
+                    <button id="logout-btn" class="auth-btn icon-btn">
+                        <span class="text-label">로그아웃</span>
+                        <span class="icon-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="challenge-lobby" class="card">
+                <h2>스프린트</h2>
+                <p class="description">선택한 영역의 문제 10개를 최대한 빨리 풀고 최고 기록에 도전하세요. <br> 오답 시 +10초 페널티가 적용됩니다.</p>
+                
+                <div class="filter-container" >
+                    <div id="domain-filters" class="filter-group">
+                        <span class="filter-label">영역</span>
+                        <button class="filter-btn" data-filter-type="domain" data-value="대수">대수</button>
+                        <button class="filter-btn" data-filter-type="domain" data-value="기하">기하</button>
+                        <button class="filter-btn" data-filter-type="domain" data-value="확률과 통계">확률과 통계</button>
+                    </div>
+                    <div id="level-filters" class="filter-group">
+                        <span class="filter-label">학교급</span>
+                        <button class="filter-btn" data-filter-type="level" data-value="중등">중등</button>
+                        <button class="filter-btn" data-filter-type="level" data-value="고등">고등</button>
+                    </div>
+                    <div id="grade-filters" class="filter-group">
+                        <span class="filter-label">학년</span>
+                        <button class="filter-btn" data-filter-type="grade" data-value="1">1학년</button>
+                        <button class="filter-btn" data-filter-type="grade" data-value="2">2학년</button>
+                        <button class="filter-btn" data-filter-type="grade" data-value="3">3학년</button>
+                    </div>
+                </div>
+
+                <div class="status-container">
+                    <p>남은 도전 횟수: <span id="attempts-left">--/--</span></p>
+                    <p>이번 주 최고 기록: <span id="personal-best">--:--.--</span></p>
+                </div>
+                
+                <p id="lobby-status" class="status-message"></p>
+                <button id="start-challenge-btn" class="btn-primary" disabled>도전 시작</button>
+            </div>
+
+            <div id="challenge-screen" class="card hidden">
+                <div class="challenge-header">
+                    <div id="challenge-info"></div>
+                    <div id="problem-counter">  1 / 10</div>
+                </div>
+                <div id="master-timer">00:00.0</div>
+                <div class="problem-box">
+                    <p id="problem-text"></p>
+                </div>
+                <div id="choices-container" class="choices-grid"></div>
+                <p id="penalty-feedback" class="feedback-message"></p>
+            </div>
+
+            <div id="run-result-screen" class="card hidden">
+                <h2>도전 완료!</h2>
+                <div class="result-summary">
+                    <p>최종 기록: <span id="final-time"></span></p>
+                    <p>정답: <span id="correct-count"></span>/10</p>
+                    <p>페널티: +<span id="penalty-seconds"></span>초</p>
+                </div>
+                <div class="result-actions">
+                    <button id="retry-challenge-btn" class="btn-secondary">다시 도전하기</button>
+                    <a href="#" id="leaderboard-link" class="btn-secondary">리더보드 보기</a>
+                    <a href="/pages/matchmaking.html" class="btn-primary">로비로 돌아가기</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="/src/pages/sprint.js"></script>
+</body>
+</html>

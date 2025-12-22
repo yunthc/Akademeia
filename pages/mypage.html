@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademeia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/mypage.css">
+</head>
+<body>
+    <div id="app">
+         <header>
+            <div class="header-left">
+                <h1>
+                    <a href="/pages/dashboard.html">
+                        <span class="logo-icon">🏛️</span>
+                        <span class="logo-text">Akademeia</span>
+                    </a>
+                </h1>
+                <nav class="global-nav">
+                    <a href="/pages/matchmaking.html">게임</a>
+                    <a href="/pages/qna.html">Q&A</a>
+                </nav>
+            </div>
+            <div id="auth-container">
+                <div id="user-profile" class="hidden">
+                    <a href="/pages/mypage.html" class="profile-link">
+                        <img id="header-profile-image" src="" alt="프로필">
+                        <span id="header-nickname"></span>
+                        <span id="header-rating"></span>
+                    </a>
+                    <button id="logout-btn" class="auth-btn icon-btn">
+                        <span class="text-label">로그아웃</span>
+                        <span class="icon-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <h2>내 정보</h2>
+            <section id="profile-details" class="card">
+                <div class="profile-header">
+                    <div class="profile-image-wrapper">
+                        <img id="profile-image" src="https://via.placeholder.com/150" alt="프로필 이미지">
+                        <button id="edit-image-btn" class="edit-btn">✏️</button>
+                        <input type="file" id="image-upload-input" class="hidden" accept="image/*">
+                    </div>
+                    <div class="profile-info">
+                        <div id="display-nickname-wrapper">
+                            <h3 id="display-nickname">로딩 중...</h3>
+                            <button id="edit-nickname-btn" class="edit-btn">✏️</button>
+                        </div>
+                        <div id="edit-nickname-wrapper" class="hidden">
+                            <input type="text" id="edit-nickname-input">
+                            <button id="save-nickname-btn">저장</button>
+                            <button id="cancel-nickname-btn">취소</button>
+                        </div>
+                        <p id="display-email"></p>
+                        <div id="display-grade-wrapper">
+                            <span id="display-grade">로딩 중...</span>
+                            <button id="edit-grade-btn" class="edit-btn">✏️</button>
+                        </div>
+                        <div id="edit-grade-wrapper" class="hidden">
+                            <select id="edit-grade-select">
+                                <option value="초등">초등학생</option>
+                                <option value="중1">중학교 1학년</option>
+                                <option value="중2">중학교 2학년</option>
+                                <option value="중3">중학교 3학년</option>
+                                <option value="고1">고등학교 1학년</option>
+                                <option value="고2">고등학교 2학년</option>
+                                <option value="고3">고등학교 3학년</option>
+                                <option value="대학생/일반">대학생/일반</option>
+                            </select>
+                            <button id="save-grade-btn">저장</button>
+                            <button id="cancel-grade-btn">취소</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h4>레이팅</h4>
+                        <p id="display-rating">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>마일리지</h4>
+                        <p id="display-mileage">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>레벨</h4>
+                        <p id="display-level">0</p>
+                    </div>
+                </div>
+
+                <div class="danger-zone">
+                    <button id="delete-account-btn" class="danger-btn">회원 탈퇴</button>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script type="module" src="/src/pages/mypage.js"></script>
+</body>
+</html>

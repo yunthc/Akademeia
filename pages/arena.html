@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademeia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/arena.css">
+    <script>
+        MathJax = {
+            tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="header-left">
+                <h1>
+                    <a href="/pages/dashboard.html">
+                        <span class="logo-icon">🏛️</span>
+                        <span class="logo-text">Akademeia</span>
+                    </a>
+                </h1>
+                <nav class="global-nav">
+                    <a href="/pages/matchmaking.html">게임</a>
+                    <a href="/pages/qna.html">Q&A</a>
+                </nav>
+            </div>
+            <div id="auth-container">
+                <div id="user-profile" class="hidden">
+                    <a href="/pages/mypage.html" class="profile-link">
+                        <img id="header-profile-image" src="" alt="프로필">
+                        <span id="header-nickname"></span>
+                        <span id="header-rating"></span>
+                    </a>
+                    <button id="logout-btn" class="auth-btn icon-btn">
+                        <span class="text-label">로그아웃</span>
+                        <span class="icon-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF">
+                                <path d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="game-screen" class="card hidden">
+                <div class="player-info-container">
+                    <div id="opponent-info-bar" class="player-info-bar">
+                        <span id="opponent-nickname"></span>
+                        <span id="opponent-rating"></span>
+                    </div>
+
+                    <div class="timer-bar">
+                        <p id="timer-display-area">
+                            <span id="main-timer-display">0.0</span>
+                            <span id="countdown-display" class="hidden">5</span>
+                        </p>
+                    </div>
+                    
+                    <div id="my-info-bar" class="player-info-bar">
+                        <span id="my-nickname"></span>
+                        <span id="my-rating"></span>
+                    </div>
+                </div>
+
+                <div class="game-content-area">
+                    <div class="game-header">
+                        <p id="status-message"></p>
+                    </div>
+                    <div class="problem-box">
+                        <p id="problem-text"></p>
+                    </div>
+                    <div id="choices-container" class="choices-grid"></div>
+                </div>
+            </div>
+
+            <div id="loading-screen" class="card">
+                <p id="loading-text">매칭 정보를 불러오는 중...</p>
+            </div>
+
+            <div id="result-screen" class="hidden">
+                <div class="card result-card">
+                    <h2 id="result-title">승리!</h2>
+                    <div class="result-players">
+                        <div class="player-result-box">
+                            <p id="opponent-nickname-result" class="result-nickname"></p>
+                            <p id="opponent-rating-result" class="result-rating"></p>
+                            <p id="opponent-final-status" class="result-status"></p>
+                        </div>
+                        <span class="vs-text">VS</span>
+                        <div class="player-result-box">
+                            <p id="my-nickname-result" class="result-nickname"></p>
+                            <p id="my-rating-result" class="result-rating"></p>
+                            <p id="my-final-status" class="result-status"></p>
+                        </div>
+                    </div>
+                    <div class="rating-change-box">
+                        <h3>레이팅 변동</h3>
+                        <p>
+                            <span id="final-rating"></span>
+                            <span id="rating-change-value"></span>
+                        </p>
+                    </div>
+                    <div class="result-actions">
+                        <button id="play-again-btn" class="btn-primary">한 번 더 하기</button>
+                        <a href="/pages/matchmaking.html" class="btn-secondary">로비로 돌아가기</a>
+                        <button id="post-qna-btn" class="btn-tertiary">이 문제 질문하기</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="/src/pages/arena.js"></script>
+</body>
+</html>
