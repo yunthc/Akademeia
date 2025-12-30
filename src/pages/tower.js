@@ -1,6 +1,6 @@
 import { auth, db } from '../firebase.js';
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { multipleChoiceProblems } from '../problem-data.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -217,13 +217,13 @@ document.addEventListener('DOMContentLoaded', () => {
             currentRun.lives--;
         } else {
             currentRun.timeBank = Math.min(currentRun.timeBankCap, currentRun.timeBank + 30);
+            currentRun.currentFloor++;
         }
         if (currentRun.lives <= 0) {
             finishChallenge('fail');
             return;
         }
         currentRun.currentProblemIndex++;
-        currentRun.currentFloor++;
         updateTowerUI();
         displayTowerProblem();
     }
@@ -249,9 +249,25 @@ document.addEventListener('DOMContentLoaded', () => {
         passBtn.className = `btn-${currentRun.passCount > 0 ? 'primary' : 'secondary'}`;
     }
 
-    function finishChallenge(reason) {
+    async function finishChallenge(reason) {
         stopAllTimers();
         const finalFloor = currentRun.currentFloor > 0 ? currentRun.currentFloor - 1 : 0;
+
+        // ▼▼▼ 게임 결과 Firestore 저장 로직 추가 ▼▼▼
+        if (currentUserProfile) {
+            try {
+                await addDoc(collection(db, "tower_results"), {
+                    uid: currentUserProfile.uid,
+                    nickname: currentUserProfile.nickname,
+                    finalFloor: finalFloor,
+                    createdAt: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("기록 저장 실패:", error);
+            }
+        }
+        // ▲▲▲▲▲▲
+
         document.getElementById('final-floor').textContent = finalFloor;
         document.getElementById('final-time-bank').textContent = formatTime(currentRun.timeBank);
         towerScreen.classList.add('hidden');

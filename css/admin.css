@@ -1,0 +1,102 @@
+/* /css/admin.css */
+
+/* --- Admin Header Navigation --- */
+.admin-main-nav {
+    display: flex;
+    gap: 1.5rem;
+    margin-left: 2.5rem;
+}
+
+.admin-main-nav .admin-nav-link {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-muted-color);
+    text-decoration: none;
+    padding: 0.5rem 0;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.admin-main-nav .admin-nav-link:hover {
+    color: var(--text-color);
+}
+
+.admin-main-nav .admin-nav-link.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* --- Admin Content Sections --- */
+/* 
+   .admin-container, .admin-sidebar, .admin-nav, .admin-content 
+   스타일은 더 이상 필요 없으므로 제거되었습니다.
+   main 태그가 콘텐츠 영역의 역할을 합니다.
+*/
+.admin-section {
+    display: none;
+}
+
+.admin-section.active {
+    display: block;
+}
+
+.admin-section h2 {
+    margin-top: 2rem; /* 헤더와의 간격 확보 */
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+/* 테이블 스타일 */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.admin-table th, .admin-table td {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.admin-table td .btn-secondary {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* 탭 구조 스타일 */
+.tab-container {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    font-size: 1rem;
+}
+.tab-btn.active {
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+    color: var(--primary-color);
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}

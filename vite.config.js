@@ -21,6 +21,10 @@ export default defineConfig({
         arena: resolve(__dirname, 'pages/arena.html'), // <-- 추가
         sprint: resolve(__dirname, 'pages/sprint.html'), // <-- 추가
         tower: resolve(__dirname, 'pages/tower.html'), // <-- 추가
+        'admin-dashboard': resolve(__dirname, 'pages/admin/dashboard.html'),
+        'admin-users': resolve(__dirname, 'pages/admin/users.html'),
+        'admin-content': resolve(__dirname, 'pages/admin/content.html'),
+        'admin-setting': resolve(__dirname, 'pages/admin/setting.html'),
         },
     },
   },

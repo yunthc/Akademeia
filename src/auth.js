@@ -39,7 +39,7 @@ onAuthStateChanged(auth, async (user) => {
     const currentPath = window.location.pathname;
     
     // 로그인이 필요한 페이지들의 경로 목록
-    const protectedPaths = ['/pages/dashboard.html', '/pages/mypage.html', '/pages/qna.html', '/pages/question.html', '/pages/generatequestion.html', '/pages/matchmaking.html', '/pages/arena.html','/pages/sprint.html','/pages/tower.html'];
+    const protectedPaths = ['/pages/dashboard.html', '/pages/mypage.html', '/pages/qna.html', '/pages/question.html', '/pages/generatequestion.html', '/pages/matchmaking.html', '/pages/arena.html','/pages/sprint.html','/pages/tower.html', '/pages/admin/'];
     // 현재 페이지가 로그인이 필요한 페이지인지 확인
     const onProtectedPage = protectedPaths.some(path => currentPath.includes(path));
 
@@ -52,6 +52,22 @@ onAuthStateChanged(auth, async (user) => {
             // 프로필이 있는 기존 유저
             const userData = userDocSnap.data();
             setupHeaderUI(userData); // 헤더 UI 업데이트
+
+            // --- 관리자 기능 UI 설정 ---
+            if (currentPath.includes('/pages/mypage.html') && userData.role === 'admin') {
+                const adminZone = document.getElementById('admin-zone');
+                if (adminZone) {
+                    adminZone.classList.remove('hidden');
+                }
+            }
+
+            // --- 관리자 페이지 접근 제어 ---
+            const onAdminPage = currentPath.startsWith('/pages/admin/');
+            if (onAdminPage && userData.role !== 'admin') {
+                alert('관리자만 접근할 수 있는 페이지입니다.');
+                window.location.href = '/pages/dashboard.html';
+                return; // 이후 로직 실행 중단
+            }
             
             // 만약 로그인 페이지나 프로필 설정 페이지에 있다면, 대시보드로 보냄
             if (currentPath === '/' || currentPath.endsWith('/pages/index.html') || currentPath.includes('/pages/profile.html')) {

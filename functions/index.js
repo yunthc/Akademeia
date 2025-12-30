@@ -4,6 +4,7 @@ const { onCall } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 
+
 initializeApp();
 
 // Elo 레이팅 계산 로직을 처리하는 메인 함수
@@ -58,4 +59,48 @@ exports.updateArenaResult = onCall(async (request) => {
     console.error("Error updating rating:", error);
     throw new Error("Failed to update rating.");
   }
+});
+
+// functions/index.js
+
+const { onCall } = require("firebase-functions/v2/https");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// 1. 제미나이 API 설정 (API 키는 환경변수나 여기에 직접 넣어도 서버라 안전함)
+// 하지만 .env 설정을 추천합니다. 일단 여기선 설명 편의상 직접 넣는 예시입니다.
+const genAI = new GoogleGenerativeAI("AIzaSyAVHM4zfPgo8Q-J6NJ4osBpwFYclCFifpo");
+
+// 2. 외부(프론트엔드)에서 부를 수 있는 함수 이름: "generateProblem"
+exports.generateProblem = onCall(async (request) => {
+    // 클라이언트가 보낸 데이터 받기
+    const originalProblem = request.data.latex;
+    const difficulty = request.data.difficulty || "middle";
+
+    // 3. 모델 선택
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    // 4. 프롬프트 작성
+    const prompt = `
+        다음 수학 문제와 동일한 풀이 논리를 가진 새로운 '객관식' 문제를 만들어줘.
+        난이도: ${difficulty}
+        원본 문제: ${originalProblem}
+        
+        조건:
+        1. JSON 형식으로만 답해.
+        2. 반드시 4개의 선택지를 포함해야 해.
+        3. 선택지 중 하나는 정답이고, 나머지 3개는 매력적인 오답이어야 해.
+        4. 포맷: {"question": "문제 지문 (LaTeX 사용 가능)", "choices": ["선택지1", "선택지2", "선택지3", "선택지4"], "answer": "정답 텍스트", "solution": "자세한 풀이"}
+    `;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        // 5. 결과만 리턴
+        return { success: true, data: text };
+    } catch (error) {
+        console.error("Gemini Error:", error);
+        return { success: false, error: error.message };
+    }
 });

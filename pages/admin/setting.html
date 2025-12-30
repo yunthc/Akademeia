@@ -4,28 +4,23 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akademeia - 대시보드</title>
+    <title>관리자 - 설정</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
-<style>
-    .quote {
-        font-style: italic;
-        text-align: center;
-        margin: 2rem 0;
-        line-height: 1.6;
-    }
-</style>
 <body>
     <div id="app">
         <header>
             <div class="header-left">
                 <h1><a href="/pages/dashboard.html"><span class="logo-icon">🏛️</span><span class="logo-text">Akademeia</span></a></h1>
-                <nav class="global-nav">
-                    <a href="/pages/matchmaking.html">게임</a>
-                    <a href="/pages/qna.html">Q&A</a>
+                <nav class="admin-main-nav">
+                    <a href="/pages/admin/dashboard.html" class="admin-nav-link">대시보드</a>
+                    <a href="/pages/admin/users.html" class="admin-nav-link">사용자</a>
+                    <a href="/pages/admin/content.html" class="admin-nav-link">콘텐츠</a>
+                    <a href="/pages/admin/setting.html" class="admin-nav-link active">설정</a>
                 </nav>
             </div>
             <div id="auth-container">
@@ -46,16 +41,14 @@
         </header>
 
         <main>
-            <div class="dashboard-main">
-                <h2> 🏛️ Ἀκαδήμεια 🏛️ </h2>
-                <p id="quote-display" class="quote"></p>
-                <div class="menu-buttons">
-                    <a href="/pages/matchmaking.html" class="menu-btn">게임 시작</a>
-                    <a href="/pages/qna.html" class="menu-btn">Q&A 게시판</a>
+            <section class="admin-section active">
+                <h2>설정</h2>
+                <div class="card">
+                    <p>서비스의 주요 설정을 변경합니다. (구현 예정)</p>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
-    <script type="module" src="/src/pages/dashboard.js"></script>
+    <script type="module" src="/src/pages/admin/setting.js"></script>
 </body>
 </html>
