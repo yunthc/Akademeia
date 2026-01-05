@@ -1,9 +1,9 @@
 // functions/index.js
 
-const { onCall } = require("firebase-functions/v2/https");
-const { initializeApp } = require("firebase-admin/app");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
-
+const {onCall} = require("firebase-functions/v2/https");
+const {initializeApp} = require("firebase-admin/app");
+const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const {GoogleGenerativeAI} = require("@google/generative-ai");
 
 initializeApp();
 
@@ -63,12 +63,13 @@ exports.updateArenaResult = onCall(async (request) => {
 
 // functions/index.js
 
-const { onCall } = require("firebase-functions/v2/https");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+
 
 // 1. 제미나이 API 설정 (API 키는 환경변수나 여기에 직접 넣어도 서버라 안전함)
 // 하지만 .env 설정을 추천합니다. 일단 여기선 설명 편의상 직접 넣는 예시입니다.
-const genAI = new GoogleGenerativeAI("AIzaSyAVHM4zfPgo8Q-J6NJ4osBpwFYclCFifpo");
+
+const genAI = new GoogleGenerativeAI("apiKey");
 
 // 2. 외부(프론트엔드)에서 부를 수 있는 함수 이름: "generateProblem"
 exports.generateProblem = onCall(async (request) => {
