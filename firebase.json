@@ -14,5 +14,23 @@
         "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
     }
-  ]
+  ],
+  "hosting": {
+    "public": "dist", 
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/",
+        "destination": "/pages/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/pages/index.html"
+      }
+    ]
+  }
 }
