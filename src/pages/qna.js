@@ -16,25 +16,24 @@ let hasMore = true; // 더 불러올 데이터가 있는지 여부
 let isPageInitialized = false; // 페이지가 이미 초기화되었는지 확인하는 플래그
 
 function initializeQnAPage() {
-    setupFilterButtons();
+    setupFilters();
     loadQuestions();
 }
 
-function setupFilterButtons() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            currentFilter = button.dataset.filter;
-            
-            // 필터 변경 시 페이지 초기화
-            currentPage = 1;
-            allQuestions = [];
-            lastVisible = null;
-            hasMore = true;
-            loadQuestions();
-        });
+function setupFilters() {
+    const filterDropdown = document.getElementById('qna-status-filter');
+
+    filterDropdown.value = currentFilter;
+
+    filterDropdown.addEventListener('change', () => {
+        currentFilter = filterDropdown.value;
+        
+        // 필터 변경 시 페이지 초기화
+        currentPage = 1;
+        allQuestions = [];
+        lastVisible = null;
+        hasMore = true;
+        loadQuestions();
     });
 }
 
@@ -162,6 +161,8 @@ async function loadQuestions(isAppend = false) {
             if (!isAppend) {
                 questionsListDiv.innerHTML = '<p>해당하는 질문이 없습니다.</p>';
             }
+            // 페이지네이션 컨트롤도 업데이트
+            renderPaginationControls();
             return;
         } else {
             snapshot.forEach((doc) => {
@@ -185,7 +186,7 @@ async function loadQuestions(isAppend = false) {
     } catch (error) {
         console.error("질문 목록 로드 오류:", error);
         if (error.code === 'failed-precondition') {
-            questionsListDiv.innerHTML = `<p style="color: red;">오류: Firestore 색인(Index)이 필요합니다. 개발자 도구(F12) 콘솔을 확인하여, 생성 링크를 클릭해주세요.</p>`;
+            questionsListDiv.innerHTML = `<p style="color: red;">오류: 데이터 조회를 위한 색인(Index)이 필요합니다. 개발자 도구(F12) 콘솔의 링크를 클릭하여 Firestore 색인을 생성해주세요.</p>`;
         } else {
             questionsListDiv.innerHTML = `<p style="color: red;">질문을 불러오는 중 오류가 발생했습니다.</p>`;
         }
@@ -224,6 +225,7 @@ function renderPage(page) {
                 })}</p>
             </div>
             <div class="question-stats">
+                <span class="like-count">♡ ${question.likeCount || 0}</span>
                 <span class="comment-count">💬 ${question.answerCount || 0}</span>
             </div>`;
         linkElement.appendChild(questionElement);

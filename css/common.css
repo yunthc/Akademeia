@@ -55,6 +55,7 @@ header {
     padding: 1rem 2rem;
     box-sizing: border-box;
     position: sticky;
+    background-color: var(--background-color); /* ▼▼▼ 추가: 스크롤 시 내용이 비치지 않도록 배경색 추가 ▼▼▼ */
     top: 0;
     z-index: 1000;
 }

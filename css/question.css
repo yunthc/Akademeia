@@ -25,6 +25,13 @@
     line-height: 1.8;
 }
 
+/* ▼▼▼ 추가: 질문 내용의 줄바꿈(엔터)이 보이도록 처리 ▼▼▼ */
+#question-text-content {
+    white-space: pre-wrap; /* 공백과 줄바꿈을 그대로 표시 */
+    word-wrap: break-word;   /* 긴 텍스트가 영역을 벗어나지 않도록 줄바꿈 */
+}
+/* ▲▲▲▲▲▲ */
+
 #question-image {
     max-width: 100%; /* 이미지가 부모 요소의 최대 너비를 넘지 않도록 */
     height: auto;    /* 높이는 비율에 맞춰 자동 조절 */
@@ -82,6 +89,8 @@
 
 .answer-content {
     line-height: 1.7;
+    white-space: pre-wrap; /* 추가: 답변 내용의 줄바꿈(엔터)이 보이도록 처리 */
+    word-wrap: break-word;   /* 추가: 긴 텍스트가 영역을 벗어나지 않도록 줄바꿈 */
 }
 
 #answer-form {
@@ -155,18 +164,22 @@
 .answer-item {
     position: relative;
     border-top: 1px solid var(--border-color);
+    /* padding is moved to the wrapper */
+}
+
+.answer-content-wrapper {
     padding: 1.5rem 0;
 }
 
 /* 채택된 답변에 적용될 스타일 */
-.answer-item.accepted {
+.answer-content-wrapper.accepted {
     background-color: #e8f5e9; /* 옅은 녹색 배경 */
     border-left: 5px solid #4CAF50; /* 녹색 왼쪽 테두리 */
     padding-left: 20px;
     margin-left: -25px;
     border-radius: 8px;
 }
-.answer-item.accepted .answer-meta::after {
+.answer-content-wrapper.accepted .answer-meta::after {
     content: '채택된 답변';
     background-color: #4CAF50;
     color: white;
@@ -178,12 +191,13 @@
 }
 
 /* 채택하기 버튼 스타일 */
-.accept-answer-btn {
+.accept-answer-btn, .accept-reply-btn {
     position: absolute;
     top: 1.5rem;
     right: 0;
     background-color: transparent;
     border: 1px solid var(--primary-color);
+    /* ▼▼▼ 추가: 버튼 기본 스타일 통일 ▼▼▼ */
     color: var(--primary-color);
     padding: 5px 12px;
     border-radius: 20px;
@@ -191,7 +205,7 @@
     font-weight: 700;
     transition: all 0.2s ease;
 }
-.accept-answer-btn:hover {
+.accept-answer-btn:hover, .accept-reply-btn:hover {
     background-color: var(--primary-color);
     color: white;
 }
@@ -200,6 +214,21 @@
 #accepted-answer-container {
     background-color: #e8f5e9; /* 옅은 녹색 배경 */
     border: 2px solid #4CAF50; /* 강조를 위한 녹색 테두리 */
+}
+
+/* ▼▼▼ 추가: 채택된 답글 스타일 ▼▼▼ */
+/* 채택된 답글의 일반 스타일 (상단 표시 및 목록 내 답글 모두 적용) */
+.reply-item.accepted {
+    background-color: #e8f5e9; /* 옅은 녹색 배경 (답변과 동일) */
+    border-left: 5px solid #4CAF50; /* 녹색 왼쪽 테두리 */
+    /* replies-container의 padding-left를 상쇄하고, border-left를 추가하기 위한 조정 */
+    margin-left: -1rem; /* replies-container의 padding-left만큼 왼쪽으로 이동 */
+    padding-left: calc(1rem - 5px); /* 새로운 border-left를 고려하여 내부 패딩 조정 */
+    width: calc(100% + 1rem); /* 왼쪽으로 이동한 만큼 너비 확장 */
+    border-radius: 8px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    box-sizing: border-box;
 }
 
 #accepted-answer-container .accepted-badge {
@@ -229,7 +258,7 @@
 .author-profile .name, .answer-author-profile .name {
     font-weight: 700;
 }
-.author-profile .rating, .answer-author-profile .rating {
+.author-profile .rating, .answer-author-profile .rating, .reply-author-info .rating {
     font-size: 0.9rem;
     color: var(--text-muted-color);
 }
@@ -280,8 +309,8 @@
 }
 
 
-/* 채택하기 버튼의 position: absolute를 제거하여 제자리를 찾도록 함 */
-.accept-answer-btn {
+/* 채택하기 버튼의 position: absolute를 제거하여 제자리를 찾도록 함 (답글 포함) */
+.accept-answer-btn, .accept-reply-btn {
     position: static; /* absolute에서 변경 */
     flex-shrink: 0; /* 버튼이 찌그러지지 않도록 */
     margin-left: 1rem;
@@ -298,3 +327,187 @@
     font-weight: 700;
 }
 /* ▲▲▲▲▲▲ */
+
+/* --- 답글 기능 스타일 --- */
+
+.answer-footer {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center; /* 버튼들 수직 정렬 */
+    gap: 1rem; /* 버튼들 사이 간격 */
+    justify-content: flex-start; /* 답글 버튼을 왼쪽으로 */
+}
+
+/* '답글' 버튼 */
+.toggle-reply-form-btn {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+.toggle-reply-form-btn:hover {
+    background-color: #f0f0f0;
+    color: var(--primary-color);
+}
+
+/* 답글 폼 */
+.reply-form {
+    margin-top: 1rem;
+    margin-left: 42px; /* 프로필 이미지 너비 + gap 만큼 들여쓰기 */
+    display: flex;
+    gap: 0.5rem;
+}
+.reply-form textarea {
+    flex-grow: 1;
+    min-height: 40px;
+    height: 40px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+    transition: height 0.2s;
+}
+.reply-form textarea:focus {
+    height: 60px;
+}
+
+.reply-form button {
+    flex-shrink: 0;
+    padding: 0 15px;
+    font-size: 0.9rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* 답글 목록 컨테이너 */
+.replies-container {
+    margin-top: 1rem;
+    margin-left: 42px; /* 프로필 이미지 너비 + gap 만큼 들여쓰기 */
+    border-left: 2px solid var(--border-color);
+    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* 개별 답글 아이템 */
+.reply-item { display: flex; gap: 8px; }
+.reply-item .reply-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.reply-item .reply-body { flex-grow: 1; }
+.reply-item .reply-author-info { display: flex; align-items: center; gap: 8px; margin-bottom: 0.25rem; }
+.reply-author-info .name { font-weight: 700; font-size: 0.9rem; }
+.reply-author-info .timestamp { font-size: 0.8rem; color: var(--text-muted-color); }
+.reply-item .reply-content {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    white-space: pre-wrap; /* 줄바꿈 적용 */
+    word-wrap: break-word;
+}
+
+/* --- 추가: 답글 헤더 및 액션 버튼 스타일 --- */
+.reply-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.answer-actions,
+.reply-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* --- 수정: 삭제 버튼을 눈에 덜 띄는 링크 스타일로 변경 --- */
+.action-link-danger {
+    background: none;
+    border: none;
+    color: var(--text-muted-color);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 4px 8px;
+    text-decoration: none;
+    transition: color 0.2s, text-decoration 0.2s;
+}
+.action-link-danger:hover {
+    color: #e74c3c; /* 빨간색 */
+    text-decoration: underline;
+}
+
+/* --- 추가: 멘션(@) 스타일 --- */
+.mention {
+    font-weight: bold;
+    color: var(--primary-color);
+    background-color: #eaf5fc;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+/* --- 추가: 좋아요 기능 스타일 --- */
+.question-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.like-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px; /* ▼▼▼ 추가: 버튼의 높이를 고정하여 크기 변화를 원천적으로 방지합니다. ▼▼▼ */
+    box-sizing: border-box; /* 패딩과 테두리를 높이에 포함시킵니다. */
+}
+
+.like-btn:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.like-btn.liked {
+    background-color: #f1f3f5; /* 무채색 계열 배경 */
+    border-color: #ced4da;   /* 배경보다 약간 진한 테두리 */
+    color: #e74c3c;           /* 아이콘과 카운트 텍스트는 붉은색 */
+}
+
+.like-btn .icon {
+    font-size: 1rem;
+    width: 1.1em; /* 아이콘 너비를 고정하여 크기 변화 방지 */
+    text-align: center;
+    display: inline-block;
+}
+
+/* --- 추가: 채택된 답변의 좋아요 수 표시 --- */
+.static-like-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted-color);
+    padding: 6px 12px;
+    height: 32px;
+    box-sizing: border-box;
+}

@@ -70,14 +70,17 @@
 
         <main>
             <div class="page-title-bar">
-                <h2>전체 질문</h2>
+                <h2>질문 게시판</h2>
                 <a href="/pages/generatequestion.html" class="btn-primary">새 질문 작성하기</a>
             </div>
 
             <div class="filter-container">
-                <button class="filter-btn active" data-filter="all">전체 보기</button>
-                <button class="filter-btn" data-filter="in-progress">진행 중</button>
-                <button class="filter-btn" data-filter="solved">답변 완료</button>
+                <!-- 답변 상태 필터만 남김 -->
+                <select id="qna-status-filter" class="filter-select">
+                    <option value="all">전체 보기</option>
+                    <option value="in-progress">진행 중</option>
+                    <option value="solved">답변 완료</option>
+                </select>
             </div>
             <section id="questions-list" class="card">
                 <p>로딩 중...</p>

@@ -76,6 +76,12 @@
                     <div id="question-body">
                         <p id="question-text-content"></p>
                         <img id="question-image" class="hidden" alt="질문 이미지">
+                        <!-- ▼▼▼ 추가: 질문 좋아요 버튼 ▼▼▼ -->
+                        <div class="question-actions">
+                            <button class="like-btn" id="question-like-btn">
+                                <span class="icon">♡</span> <span class="count">0</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -84,14 +90,14 @@
                 </section>
 
             <section id="answers-container" class="card">
-                <h3>답변 (<span id="answer-count">0</span>)</h3>
+                <h3>댓글 (<span id="answer-count">0</span>)</h3>
                 <div id="answers-list">
-                    <p>아직 등록된 답변이 없습니다. 첫 답변을 달아보세요!</p>
+                    <p>아직 등록된 댓글이 없습니다. 첫 댓글을 달아보세요!</p>
                 </div>
                 <form id="answer-form" class="hidden">
-                    <h4>답변 작성하기</h4>
+                    <h4>댓글 작성</h4>
                     <textarea id="answer-content" rows="4" placeholder="답변 내용을 입력하세요..." required></textarea>
-                    <button type="submit">답변 등록</button>
+                    <button type="submit">댓글 등록</button>
                 </form>
             
         </main>

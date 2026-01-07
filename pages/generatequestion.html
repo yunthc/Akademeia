@@ -47,15 +47,36 @@
         </header>
 
         <main>
-            <section id="question-form-container" class="card">
-                <h2>새로운 질문 올리기</h2>
+            <div class="page-title-bar">
+                <h2>질문 글 작성</h2>
+                <a href="/pages/qna.html" class="btn-secondary">목록으로</a>
+            </div>
+
+            <section class="card">
                 <form id="question-form" autocomplete="off">
-                    <input type="text" id="question-title" placeholder="질문 제목" required>
-                    <textarea id="question-content" placeholder="질문 내용을 입력하세요..." rows="4" required></textarea>
-                    <div class="file-upload-wrapper">
-                        <label for="question-image-input">📷 이미지 첨부</label>
-                        <input type="file" id="question-image-input" accept="image/*">
-                        <span id="file-name-display">선택된 파일 없음</span>
+                    <div class="form-group">
+                        <label for="question-title" class="form-label">제목</label>
+                        <input type="text" id="question-title" placeholder="질문 제목을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="question-content" class="form-label">내용</label>
+                        <textarea id="question-content" placeholder="질문 내용을 입력하세요. 수식은 $...$ 또는 $$...$$로 작성할 수 있습니다." rows="6" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">이미지 첨부</label>
+                        <div id="image-upload-area" class="image-upload-area">
+                            <input type="file" id="question-image-input" accept="image/*" class="hidden">
+                            <label for="question-image-input" class="image-upload-label">
+                                <div id="image-preview-container" class="hidden">
+                                    <img id="image-preview" src="#" alt="Image preview">
+                                    <button type="button" id="remove-image-btn" class="remove-image-btn">&times;</button>
+                                </div>
+                                <div id="upload-placeholder">
+                                    <span class="icon">📷</span>
+                                    <p>이미지를 드래그하거나 클릭하여 업로드하세요</p>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                     <button type="submit">질문 등록</button>
                 </form>

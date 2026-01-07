@@ -2,7 +2,7 @@
 import { auth, db } from '../firebase.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, addDoc, doc, getDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import '../auth.js'; // 헤더 UI 업데이트 등 공통 로직 실행
 
 let currentUserData = null;
@@ -11,7 +11,7 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userDocSnap = await getDoc(doc(db, "users", user.uid));
         if (userDocSnap.exists()) {
-            currentUserData = userDocSnap.data();
+            currentUserData = { uid: user.uid, ...userDocSnap.data() };
             initializeGenerateQuestionPage(currentUserData);
         }
     }
@@ -20,14 +20,24 @@ onAuthStateChanged(auth, async (user) => {
 function initializeGenerateQuestionPage(user) {
     if (!user) return;
     
+    // --- 수정 모드 감지 ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const editQuestionId = urlParams.get('edit');
+
     const questionForm = document.getElementById('question-form');
     const questionTitleInput = document.getElementById('question-title');
     const questionContentInput = document.getElementById('question-content');
+    
+    // --- Image Upload Elements ---
+    const imageUploadArea = document.getElementById('image-upload-area');
     const questionImageInput = document.getElementById('question-image-input');
-    const fileNameDisplay = document.getElementById('file-name-display');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const uploadPlaceholder = document.getElementById('upload-placeholder');
+    const removeImageBtn = document.getElementById('remove-image-btn');
+
     let selectedFile = null;
 
-    // ▼▼▼ 이 부분을 새로 추가해주세요 ▼▼▼
     // --- Textarea 높이 자동 조절 ---
     function autoResizeTextarea() {
         // 높이를 일시적으로 1px로 만들어 스크롤 높이를 정확히 계산하도록 함
@@ -45,104 +55,193 @@ function initializeGenerateQuestionPage(user) {
     if (questionContentInput.value) {
         autoResizeTextarea.call(questionContentInput);
     }
-    // ▲▲▲ 여기까지 ▲▲▲
 
-
-    // ▼▼▼ 이 로직 블록을 새로 추가해주세요 ▼▼▼
-    // --- 아레나에서 넘어온 문제 데이터 자동 채우기 ---
-    const storedProblem = sessionStorage.getItem('qnaNewPostData');
-    if (storedProblem) {
-        try {
-            const problemData = JSON.parse(storedProblem);
-
-            // 폼의 제목과 내용에 문제 정보 미리 채우기
-            questionTitleInput.value = `[아레나] 문제 질문`;
-            
-            const choicesText = problemData.choices.map((choice, index) => `${index + 1}. ${choice}`).join('\n');
-            questionContentInput.value = 
-`(여기에 질문 내용을 작성하세요.)\n
-\n
----\n
-**문제:** ${problemData.question}\n
-\n
-**선택지:**\n
-${choicesText}\n
----
-`;
-            // ▼▼▼ 이 한 줄을 추가해주세요 ▼▼▼
-            // 내용을 채워준 직후, 높이 조절 함수를 '수동으로' 한 번 호출합니다.
-            autoResizeTextarea.call(questionContentInput);
-            // ▲▲▲ 여기까지 ▲▲▲
-
-            // MathJax가 있다면, LaTex 수식을 렌더링하기 위해 contenteditable 대신 textarea를 사용해야 할 수 있습니다.
-            // 만약 content가 풍부한 에디터(예: Toast UI Editor)를 사용한다면, .setValue() 또는 .setMarkdown() 같은 API를 사용해야 합니다.
-
-            // 데이터를 한 번 사용한 후에는 반드시 지워서,
-            // 나중에 다시 글쓰기 페이지에 들어왔을 때 내용이 남아있지 않도록 합니다.
-            sessionStorage.removeItem('qnaNewPostData');
-
-        } catch (error) {
-            console.error("문제 정보를 불러오는 데 실패했습니다:", error);
-            sessionStorage.removeItem('qnaNewPostData');
+    // --- 수정 모드 또는 새 글 모드에 따라 페이지 초기화 ---
+    if (editQuestionId) {
+        loadQuestionForEditing(editQuestionId);
+    } else {
+        // --- 아레나에서 넘어온 문제 데이터 자동 채우기 (새 글 모드에서만) ---
+        const storedProblem = sessionStorage.getItem('qnaNewPostData');
+        if (storedProblem) {
+            try {
+                const problemData = JSON.parse(storedProblem);
+                questionTitleInput.value = `[아레나] '${problemData.question.substring(0, 15)}...' 문제에 대해 질문합니다.`;
+                const choicesText = problemData.choices.map((choice, index) => `> ${index + 1}. ${choice}`).join('\n');
+                questionContentInput.value = 
+    `(여기에 질문 내용을 작성하세요.)\n
+    \n
+    ---\n
+    > ### ⚔️ 아레나 출제 문제
+    >
+    > **Q.** ${problemData.question.replace(/\n/g, '\n> ')}\n
+    > \n
+    > **선택지** \n
+    ${choicesText}\n
+    ---
+    `;
+                autoResizeTextarea.call(questionContentInput);
+                sessionStorage.removeItem('qnaNewPostData');
+            } catch (error) {
+                console.error("문제 정보를 불러오는 데 실패했습니다:", error);
+                sessionStorage.removeItem('qnaNewPostData');
+            }
         }
     }
-    // ▲▲▲ 여기까지 ▲▲▲
+
+    async function loadQuestionForEditing(questionId) {
+        document.querySelector('.page-title-bar h2').textContent = '질문 글 수정';
+        const submitButton = questionForm.querySelector('button[type="submit"]');
+        submitButton.textContent = '질문 수정';
+
+        try {
+            const questionDocRef = doc(db, "questions", questionId);
+            const questionDocSnap = await getDoc(questionDocRef);
+
+            if (questionDocSnap.exists()) {
+                const questionData = questionDocSnap.data();
+
+                if (questionData.authorId !== user.uid) {
+                    alert('이 질문을 수정할 권한이 없습니다.');
+                    window.location.href = `/pages/question.html?id=${questionId}`;
+                    return;
+                }
+
+                questionTitleInput.value = questionData.title;
+                questionContentInput.value = questionData.content;
+                autoResizeTextarea.call(questionContentInput);
+
+                if (questionData.imageUrl) {
+                    imagePreview.src = questionData.imageUrl;
+                    imagePreviewContainer.classList.remove('hidden');
+                    uploadPlaceholder.classList.add('hidden');
+                    questionForm.dataset.originalImageUrl = questionData.imageUrl;
+                }
+            } else {
+                alert('수정할 질문을 찾을 수 없습니다.');
+                window.location.href = '/pages/qna.html';
+            }
+        } catch (error) {
+            console.error("수정할 질문 로딩 오류:", error);
+            alert('질문 정보를 불러오는 중 오류가 발생했습니다.');
+        }
+    }
+
+    // --- New Image Upload Logic ---
+    function displayImagePreview(file) {
+        if (file && file.type.startsWith('image/')) {
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreviewContainer.classList.remove('hidden');
+                uploadPlaceholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            removeImage();
+        }
+    }
+
+    function removeImage() {
+        selectedFile = null;
+        questionImageInput.value = ''; // Reset file input
+        imagePreview.src = '#';
+        imagePreviewContainer.classList.add('hidden');
+        uploadPlaceholder.classList.remove('hidden');
+        if (questionForm.dataset.originalImageUrl) {
+            questionForm.dataset.originalImageUrl = '';
+        }
+    }
+
+    // Event Listeners for Image Upload
+    removeImageBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent label from opening file dialog
+        e.stopPropagation(); // Stop bubbling
+        removeImage();
+    });
 
     questionImageInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
-        if (file) {
-            selectedFile = file;
-            fileNameDisplay.textContent = file.name;
-        } else {
-            selectedFile = null;
-            fileNameDisplay.textContent = '선택된 파일 없음';
-        }
+        displayImagePreview(file);
     });
+
+    // Drag and Drop Listeners
+    imageUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        imageUploadArea.classList.add('dragging');
+    });
+
+    imageUploadArea.addEventListener('dragleave', () => {
+        imageUploadArea.classList.remove('dragging');
+    });
+
+    imageUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        imageUploadArea.classList.remove('dragging');
+        const file = e.dataTransfer.files[0];
+        displayImagePreview(file);
+    });
+
 
     questionForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const title = questionTitleInput.value.trim();
-        const content = questionContentInput.value.trim();
+        const content = questionContentInput.value;
         if (!title || !content) return alert('제목과 내용을 모두 입력해주세요.');
 
         const submitButton = questionForm.querySelector('button[type="submit"]');
         submitButton.disabled = true;
-        submitButton.textContent = '등록 중...';
+        submitButton.textContent = editQuestionId ? '수정 중...' : '등록 중...';
 
         try {
-            let imageUrl = null;
-            if (selectedFile) {
-                const storage = getStorage();
-                // 파일 경로 지정: question_images/유저ID_현재시간_파일명
-                const storageRef = ref(storage, `question_images/${user.uid}_${Date.now()}_${selectedFile.name}`);
-                
-                const uploadResult = await uploadBytes(storageRef, selectedFile);
-                imageUrl = await getDownloadURL(uploadResult.ref);
+            if (editQuestionId) {
+                // --- 질문 수정 로직 ---
+                const questionRef = doc(db, "questions", editQuestionId);
+                let finalImageUrl = questionForm.dataset.originalImageUrl;
+
+                if (selectedFile) { // 새 파일이 업로드된 경우
+                    const storage = getStorage();
+                    const storageRef = ref(storage, `question_images/${user.uid}_${Date.now()}_${selectedFile.name}`);
+                    const uploadResult = await uploadBytes(storageRef, selectedFile);
+                    finalImageUrl = await getDownloadURL(uploadResult.ref);
+                    // 참고: 이전 이미지는 삭제하지 않음 (Cloud Function으로 처리하는 것이 더 안전)
+                }
+
+                await updateDoc(questionRef, {
+                    title: title,
+                    content: content,
+                    imageUrl: finalImageUrl === '' ? null : finalImageUrl,
+                    updatedAt: new Date()
+                });
+
+                alert('질문이 성공적으로 수정되었습니다.');
+                window.location.href = `/pages/question.html?id=${editQuestionId}`;
+            } else {
+                // --- 새 질문 등록 로직 ---
+                let imageUrl = null;
+                if (selectedFile) {
+                    const storage = getStorage();
+                    const storageRef = ref(storage, `question_images/${user.uid}_${Date.now()}_${selectedFile.name}`);
+                    const uploadResult = await uploadBytes(storageRef, selectedFile);
+                    imageUrl = await getDownloadURL(uploadResult.ref);
+                }
+
+                const newQuestionDocRef = await addDoc(collection(db, "questions"), {
+                    title: title, content: content, imageUrl: imageUrl,
+                    authorId: user.uid, authorName: user.nickname, authorPhotoUrl: user.photoURL || null,
+                    authorRating: user.rating, createdAt: new Date(), answerCount: 0, isSolved: false, 
+                    likeCount: 0,
+                });
+
+                alert('질문이 성공적으로 등록되었습니다. 작성하신 질문 페이지로 이동합니다.');
+                window.location.href = `/pages/question.html?id=${newQuestionDocRef.id}`;
             }
-
-            // ▼▼▼ 수정: 작성자 정보를 더 풍부하게 저장 ▼▼▼
-            await addDoc(collection(db, "questions"), {
-                title: title,
-                content: content,
-                imageUrl: imageUrl, 
-                authorId: user.uid,
-                authorName: user.nickname,
-                authorPhotoUrl: user.photoURL || null, // 프로필 사진 URL 추가
-                authorRating: user.rating, // 당시 레이팅 추가
-                createdAt: new Date(),
-                answerCount: 0,
-                isSolved: false,
-            });
-            // ▲▲▲▲▲▲
-
-            alert('질문이 성공적으로 등록되었습니다.');
-            window.location.href = '/qna.html';
-
         } catch (error) {
-            console.error("질문 등록 중 오류 발생:", error);
-            alert('질문 등록에 실패했습니다.');
+            console.error("처리 중 오류 발생:", error);
+            alert('처리 중 오류가 발생했습니다.');
+        } finally {
             submitButton.disabled = false;
-            submitButton.textContent = '질문 등록';
+            submitButton.textContent = editQuestionId ? '질문 수정' : '질문 등록';
         }
     });
 }
