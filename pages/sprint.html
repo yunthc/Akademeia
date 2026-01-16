@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sprint - Akademeia</title>
+    <title>Time Attack - Akademeia</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -52,7 +52,7 @@
 
         <main>
             <div id="challenge-lobby" class="card">
-                <h2>스프린트</h2>
+                <h2>타임어택</h2>
                 <p class="description">선택한 영역의 문제 10개를 최대한 빨리 풀고 최고 기록에 도전하세요. <br> 오답 시 +10초 페널티가 적용됩니다.</p>
                 
                 <div class="filter-container" >
@@ -81,14 +81,18 @@
                 </div>
                 
                 <p id="lobby-status" class="status-message"></p>
-                <button id="start-challenge-btn" class="btn-primary" disabled>도전 시작</button>
+                <div style="display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap;">
+                    <button id="start-challenge-btn" class="btn-primary" style="flex: 1; min-width: 200px; max-width: 300px;" disabled>도전 시작</button>
+                    <a href="/pages/leaderboard.html?tab=sprint" class="btn-secondary" style="flex: 1; min-width: 200px; max-width: 300px; text-align: center; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; padding: 1rem; text-decoration: none;">리더보드</a>
+                </div>
             </div>
 
             <div id="challenge-screen" class="card hidden">
                 <div class="challenge-header">
                     <div id="challenge-info"></div>
-                    <div id="problem-counter">  1 / 10</div>
+                    <div id="lives-counter">❤️❤️❤️</div>
                 </div>
+                <div id="sprint-progress-bar"></div>
                 <div id="master-timer">00:00.0</div>
                 <div class="problem-box">
                     <p id="problem-text"></p>
@@ -98,11 +102,12 @@
             </div>
 
             <div id="run-result-screen" class="card hidden">
-                <h2>도전 완료!</h2>
+                <h2 id="result-title">도전 완료!</h2>
+                <div id="perfect-badge" class="hidden">PERFECT!</div>
                 <div class="result-summary">
                     <p>최종 기록: <span id="final-time"></span></p>
                     <p>정답: <span id="correct-count"></span>/10</p>
-                    <p>페널티: +<span id="penalty-seconds"></span>초</p>
+                    <p id="penalty-row">페널티: +<span id="penalty-seconds"></span>초</p>
                 </div>
                 <div class="result-actions">
                     <button id="retry-challenge-btn" class="btn-secondary">다시 도전하기</button>

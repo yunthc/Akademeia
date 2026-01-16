@@ -1,8 +1,7 @@
 import { auth, db } from '../firebase.js';
-import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, runTransaction, increment, deleteDoc, updateDoc, FieldValue } from "firebase/firestore";
 import { getStorage, ref, deleteObject } from "firebase/storage";
-import '../auth.js';
+import { requireAuth } from '../auth.js';
 
 let currentUser = null;
 let currentUserProfile = null;
@@ -20,7 +19,7 @@ function processMentions(text) {
     return text.replace(mentionRegex, '<span class="mention">@$1</span>');
 }
 
-onAuthStateChanged(auth, async (user) => {
+requireAuth((user, userData) => {
     const urlParams = new URLSearchParams(window.location.search);
     const questionId = urlParams.get('id');
     if (!questionId) {
@@ -28,12 +27,7 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
     currentUser = user;
-    if (user) {
-        const userDocSnap = await getDoc(doc(db, "users", user.uid));
-        if (userDocSnap.exists()) {
-            currentUserProfile = { uid: user.uid, ...userDocSnap.data() };
-        }
-    }
+    currentUserProfile = userData;
     initializeQuestionPage(questionId);
 });
 

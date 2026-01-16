@@ -1,29 +1,13 @@
 import { auth, db, storage } from '../firebase.js'; // storage도 사용하므로 import
-import { onAuthStateChanged, updateProfile, deleteUser } from "firebase/auth";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { updateProfile, deleteUser } from "firebase/auth";
+import { doc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import '../auth.js'; // 모든 페이지의 공통 인증 로직 실행
+import { requireAuth } from '../auth.js'; // 모든 페이지의 공통 인증 로직 실행
 
 // --- 페이지의 모든 로직을 관장하는 메인 리스너 ---
-onAuthStateChanged(auth, async (user) => {
-    // 사용자가 로그인되어 있는지 확인
-    if (user) {
-        // Firestore에서 해당 사용자의 프로필 문서를 가져옴
-        const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-            // 프로필 문서가 존재하면, 해당 데이터를 기반으로 페이지 전체 기능을 초기화
-            const userData = userDocSnap.data();
-            initializeMyPage(user, userData);
-        } else {
-            // 프로필이 없는 사용자는 이 페이지에 올 수 없으므로 프로필 설정 페이지로 보냄
-            // (이 로직은 auth.js가 처리하지만, 만약을 위한 방어 코드)
-            alert("프로필 정보가 없습니다. 프로필 설정 페이지로 이동합니다.");
-            window.location.href = '/profile.html';
-        }
-    }
-    // 로그아웃 상태라면 auth.js가 로그인 페이지로 보내주므로 별도 처리 안 함
+requireAuth(async (user, userData) => {
+    // URL 파라미터와 상관없이 항상 로그인한 사용자의 프로필을 초기화합니다.
+    initializeMyPage(user, userData);
 });
 
 
@@ -201,7 +185,7 @@ function initializeDeleteFeature(user, userData) {
             await deleteUser(user);
             
             alert('회원 탈퇴가 완료되었습니다. 이용해주셔서 감사합니다.');
-            window.location.href = '/index.html';
+            window.location.href = '/pages/index.html';
 
         } catch (error) {
             console.error("회원 탈퇴 처리 중 오류 발생:", error);

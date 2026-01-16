@@ -1,6 +1,34 @@
 import { auth, db } from '../firebase.js';
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp, orderBy, limit } from "firebase/firestore";
+import { doc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp, orderBy, limit } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { requireAuth } from '../auth.js';
+
+// BFCache(뒤로가기 캐시)로 인해 로그아웃 후 뒤로가기 시 이전 게임 화면이 복구되는 것을 방지
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
+
+function preventNavigation(event) {
+    event.preventDefault();
+    event.returnValue = '';
+}
+
+// 애니메이션 스타일 주입
+const style = document.createElement('style');
+style.textContent = `
+@keyframes popRating {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); color: #2ecc71; }
+    100% { transform: scale(1); }
+}
+.pop-animation {
+    display: inline-block;
+    animation: popRating 0.5s ease-out;
+}
+`;
+document.head.appendChild(style);
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM 요소 ---
@@ -9,12 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const lobbyStatus = document.getElementById('lobby-status');
     const loadingScreen = document.getElementById('loading-screen');
     const loadingText = document.getElementById('loading-text');
+    const cancelMatchBtn = document.getElementById('cancel-match-btn');
     const gameScreen = document.getElementById('game-screen');
     const resultScreen = document.getElementById('result-screen');
     const playAgainBtn = document.getElementById('play-again-btn');
     const opponentInfoBar = document.getElementById('opponent-info-bar');
     const myInfoBar = document.getElementById('my-info-bar');
     const opponentNicknameSpan = document.getElementById('opponent-nickname');
+    const opponentProfileImage = document.getElementById('opponent-profile-image');
+    const myProfileImage = document.getElementById('my-profile-image');
     const opponentRatingSpan = document.getElementById('opponent-rating');
     const myNicknameSpan = document.getElementById('my-nickname');
     const myRatingSpan = document.getElementById('my-rating');
@@ -34,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let opponentFinalState = {};
     let gameEnded = false;
     let opponentFirstAttemptHandled = false;
+    let matchTimer = null;
 
     const K_FACTOR = 16; // 일반적인 K-팩터 값. 필요에 따라 조정 가능
     const RATING_SCALE = 400; // Elo 공식에 사용되는 스케일 (일반적으로 400)
@@ -42,14 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const RATING_SCALE_PROBLEM = 400
 
     // --- 페이지 초기화 ---
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = '/pages/index.html'; return; }
-        const userDocSnap = await getDoc(doc(db, "users", user.uid));
-        if (userDocSnap.exists()) {
-            currentUserProfile = { uid: user.uid, ...userDocSnap.data() };
-            setupHeaderUI(currentUserProfile);
-            initializeArena();
-        } else { window.location.href = '/pages/profile.html'; }
+    requireAuth((user, userData) => {
+        currentUserProfile = userData;
+        initializeArena();
     });
     
 
@@ -57,6 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeArena() {
         playAgainBtn.addEventListener('click', createNewMatchAndRedirect);
         postQnaBtn.addEventListener('click', postQuestionToQnA); // << 이벤트 리스너 연결
+        
+        if (cancelMatchBtn) {
+            cancelMatchBtn.addEventListener('click', () => {
+                if (matchTimer) clearTimeout(matchTimer);
+                window.location.href = '/pages/matchmaking.html';
+            });
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('matchId')) {
             fetchMatchAndStartGame(urlParams.get('matchId'));
@@ -80,8 +115,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // ▼▼▼ 누락되었던 함수 ▼▼▼
     async function createNewMatchAndRedirect() {
         playAgainBtn.disabled = true;
-        const newMatchId = `mock_match_${Date.now()}`;
-        window.location.href = `/pages/arena.html?matchId=${newMatchId}`;
+        
+        // 매칭 대기 상태 시각화: 결과 화면을 숨기고 로딩 화면을 표시
+        resultScreen.classList.add('hidden');
+        gameScreen.classList.add('hidden');
+        loadingScreen.classList.remove('hidden');
+        loadingText.textContent = "새로운 대전 상대를 찾고 있습니다...";
+
+        // 매칭 시뮬레이션 (1.5초 대기)
+        matchTimer = setTimeout(() => {
+            const newMatchId = `mock_match_${Date.now()}`;
+            window.location.href = `/pages/arena.html?matchId=${newMatchId}`;
+        }, 1500);
     }
 
     /**
@@ -188,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startGame() { 
+        window.addEventListener('beforeunload', preventNavigation);
         resetGameForStart();
         loadingScreen.classList.add('hidden');
         resultScreen.classList.add('hidden');
@@ -195,8 +241,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         myNicknameSpan.textContent = currentUserProfile.nickname;
         myRatingSpan.textContent = `(${currentUserProfile.rating})`;
+        myProfileImage.src = currentUserProfile.photoURL || '/default-avatar.svg';
+
         opponentNicknameSpan.textContent = opponentRecord.nickname;
         opponentRatingSpan.textContent = `(${opponentRecord.rating})`;
+        opponentProfileImage.src = opponentRecord.photoURL || '/default-avatar.svg';
+
         problemTextEl.textContent = currentProblem.question;
         
         if (window.MathJax) {
@@ -390,6 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function endGameAndShowResult() {
         if (gameEnded) return;
+        window.removeEventListener('beforeunload', preventNavigation);
         gameEnded = true;
         stopAllTimers();
 
@@ -419,7 +470,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ghostData = {
                     problemId: currentProblem.id,
                     nickname: currentUserProfile.nickname,
+                    uid: currentUserProfile.uid, // uid 추가
                     rating: currentUserProfile.rating, // 대결 시작 시점의 레이팅
+                    photoURL: currentUserProfile.photoURL || null, // 프로필 이미지 저장
                     
                     // 1차 시도에 성공했는지 여부
                     firstAttemptIsCorrect: ( myFinalState.time - (myFinalState.firstAttemptTime||myFinalState.time) <3) && myFinalState.is_correct,
@@ -497,17 +550,37 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- DOM 요소에 데이터 채우기 ---
         const myNicknameEl = document.getElementById('my-nickname-result');
         const opponentNicknameEl = document.getElementById('opponent-nickname-result');
+        const myProfileImageResult = document.getElementById('my-profile-image-result');
+        const opponentProfileImageResult = document.getElementById('opponent-profile-image-result');
 
+        myProfileImageResult.src = currentUserProfile.photoURL || '/default-avatar.svg';
         myNicknameEl.textContent = currentUserProfile.nickname;
         document.getElementById('my-rating-result').textContent = `(${currentUserProfile.rating})`;
         document.getElementById('my-final-status').textContent = `${myStatusText} ${myDisplayTimeText}`;
         
+        opponentProfileImageResult.src = opponentRecord.photoURL || '/default-avatar.svg';
         opponentNicknameEl.textContent = opponentRecord.nickname;
         document.getElementById('opponent-rating-result').textContent = `(${opponentRecord.rating})`;
         document.getElementById('opponent-final-status').textContent = `${opponentStatusText} ${opponentDisplayTimeText}`;
         
         document.getElementById('result-title').textContent = resultText;
         
+        // 닉네임 클릭 시 프로필 이동 이벤트 추가
+        if (currentUserProfile.uid) {
+            const myPageUrl = '/pages/mypage.html';
+            myNicknameEl.style.cursor = 'pointer';
+            myNicknameEl.onclick = () => window.location.href = myPageUrl;
+            myProfileImageResult.style.cursor = 'pointer';
+            myProfileImageResult.onclick = () => window.location.href = myPageUrl;
+        }
+        if (opponentRecord.uid) {
+            const userProfileUrl = `/pages/user-profile.html?uid=${opponentRecord.uid}`;
+            opponentNicknameEl.style.cursor = 'pointer';
+            opponentNicknameEl.onclick = () => window.location.href = userProfileUrl;
+            opponentProfileImageResult.style.cursor = 'pointer';
+            opponentProfileImageResult.onclick = () => window.location.href = userProfileUrl;
+        }
+
         // --- 닉네임 색상 변경 로직 ---
         myNicknameEl.className = 'result-nickname'; // 초기화
         opponentNicknameEl.className = 'result-nickname'; // 초기화
@@ -522,58 +595,61 @@ document.addEventListener('DOMContentLoaded', () => {
             myNicknameEl.classList.add('draw');
             opponentNicknameEl.classList.add('draw');
         }
-
-        let ratingChange = 0;
-        let difficultyChange = 0;
-
-        let myGameOutcome; 
-
-        if (resultText === '승리!') {
-            myGameOutcome = (opponentStatusText==='정답') ? (opponentFinalState.time.toFixed(1) - myFinalState.time.toFixed(1) + 5)/10 : (opponentStatusText==='오답' ? 1.1 : 1 )
-
-        } else if (resultText === '패배!') {
-            myGameOutcome = (myStatusText==='정답') ? (opponentFinalState.time.toFixed(1) - myFinalState.time.toFixed(1) + 5)/10 : (myStatusText==='오답' ? -0.1 : 0 )
-        } else { // 무승부
-            myGameOutcome = 0.5;
-        }
-        // console.log(myGameOutcome)
-
-        // 나의 레이팅 변화 계산
-        ratingChange = (resultText === '무승부') ? (myStatusText==='오답' ? -2 : 0) : calculateEloChange(currentUserProfile.rating, opponentRecord.rating, myGameOutcome);
-        difficultyChange = (resultText === '무승부') ? 0 : calculateDifficultyChange(currentProblem.difficulty, currentUserProfile.rating, myGameOutcome);
         
-        const newRating = currentUserProfile.rating + ratingChange;
+        // ▼▼▼ Cloud Function 호출로 변경 ▼▼▼
+        const functions = getFunctions();
+        const updateArenaResult = httpsCallable(functions, 'updateArenaResult');
+
+        const payload = {
+            myResult: { isCorrect: myFinalState.is_correct, time: myFinalState.time },
+            opponentResult: { 
+                isCorrect: opponentRecord.isCorrect, // 고스트의 정답 여부
+                time: opponentRecord.timeTaken,      // 고스트의 소요 시간
+                rating: opponentRecord.rating        // 고스트의 레이팅
+            },
+            problemId: currentProblem.id,
+            problemDifficulty: currentProblem.difficulty
+        };
+
+        // 계산 전 현재 레이팅 표시 및 로딩 상태 설정
+        const finalRatingEl = document.getElementById('final-rating');
         const ratingChangeValueEl = document.getElementById('rating-change-value');
         
-        document.getElementById('final-rating').textContent = newRating;
-        ratingChangeValueEl.textContent = `(${ratingChange >= 0 ? '+' : ''}${ratingChange})`;
-        
-        ratingChangeValueEl.style.color = ratingChange > 0 ? 'green' : (ratingChange < 0 ? 'red' : 'gray');
+        finalRatingEl.textContent = currentUserProfile.rating;
+        ratingChangeValueEl.textContent = "";
 
         try {
-            const userRef = doc(db, "users", currentUserProfile.uid);
-            await updateDoc(userRef, {
-                rating: newRating
+            const result = await updateArenaResult(payload);
+            const { newRating, ratingChange, winStreak } = result.data;
+
+            // 숫자 카운팅 애니메이션 및 팝핑 효과 적용
+            animateValue(finalRatingEl, currentUserProfile.rating, newRating, 1000, () => {
+                ratingChangeValueEl.textContent = `(${ratingChange >= 0 ? '+' : ''}${ratingChange})`;
+                ratingChangeValueEl.style.color = ratingChange > 0 ? 'green' : (ratingChange < 0 ? 'red' : 'gray');
+                if (ratingChange >= 0) {
+                    ratingChangeValueEl.classList.remove('pop-animation');
+                    void ratingChangeValueEl.offsetWidth;
+                    ratingChangeValueEl.classList.add('pop-animation');
+                }
             });
+
+            // 5연승 이상일 때 메시지 표시
+            if (winStreak >= 5) {
+                const ratingBox = document.querySelector('.rating-change-box');
+                const streakMsg = document.createElement('p');
+                streakMsg.className = 'pop-animation';
+                streakMsg.style.color = '#e67e22'; // 불꽃 색상
+                streakMsg.style.fontWeight = 'bold';
+                streakMsg.innerHTML = `🔥 ${winStreak}연승 달성! (+5점)`;
+                ratingBox.appendChild(streakMsg);
+            }
+
             // 현재 로드된 사용자 프로필도 업데이트하여 다음 게임에 반영되도록 합니다.
             currentUserProfile.rating = newRating;
-            //console.log(`사용자 ${currentUserProfile.nickname}의 레이팅이 ${newRating}으로 업데이트되었습니다.`);
-
-            // 문제 난이도 업데이트 로직 추가
-            if (currentProblem && currentProblem.id) {
-                const newDifficulty = currentProblem.difficulty + difficultyChange;
-                const problemRef = doc(db, "problems", currentProblem.id);
-                await updateDoc(problemRef, {
-                    difficulty: newDifficulty
-                });
-                // 현재 로드된 문제 데이터도 업데이트하여 다음 게임에 반영되도록 합니다.
-                currentProblem.difficulty = newDifficulty;
-                //console.log(`문제 ${currentProblem.id}의 난이도가 ${newDifficulty}으로 업데이트되었습니다.`);
-            }
 
         } catch (error) {
             console.error("Firebase Firestore 레이팅 업데이트 중 오류 발생:", error);
-            // 사용자에게 레이팅 업데이트 실패 메시지를 표시할 수도 있습니다.
+            ratingChangeValueEl.textContent = " (오류)";
         }
         // --- Firestore 업데이트 로직 끝 ---
 
@@ -606,26 +682,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }    
 
-    function calculateEloChange(playerRating, opponentRating, gameOutcome) {
-        // gameOutcome: 1 (승리), 0.5 (무승부), 0 (패배)
-
-        // 기대 승률(Expected Score) 계산
-        const expectedScore = 1 / (1 + Math.pow(10, (opponentRating - playerRating) / RATING_SCALE));
-
-        // 레이팅 변화량 계산
-        const change = K_FACTOR * (gameOutcome - expectedScore);
-        return Math.round(change); // 정수로 반올림
-    }
-
-    function calculateDifficultyChange(problemDifficulty, playerRating, gameOutcome) {
-        // gameOutcome: 1 (승리), 0.5 (무승부), 0 (패배)
-
-        // 기대 승률(Expected Score) 계산
-        const expectedScore = 1 / (1 + Math.pow(10, (playerRating-problemDifficulty) / RATING_SCALE_PROBLEM));
-
-        // 레이팅 변화량 계산
-        const change = K_FACTOR_PROBLEM * (1 - gameOutcome - expectedScore);
-        return Math.round(change); // 정수로 반올림
+    function animateValue(obj, start, end, duration, callback) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.textContent = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                obj.textContent = end;
+                // 애니메이션 재실행을 위해 클래스 제거 후 다시 추가
+                if (end >= start) {
+                    obj.classList.remove('pop-animation');
+                    void obj.offsetWidth; // 리플로우 트리거
+                    obj.classList.add('pop-animation');
+                }
+                if (callback) callback();
+            }
+        };
+        window.requestAnimationFrame(step);
     }
 
     function lockChoices(isLocked, showCorrect = false) {
@@ -643,24 +719,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         choicesContainer.classList.toggle('choices-locked', isLocked);
     }
-    
-    function setupHeaderUI(userData) {
-        const userProfileDiv = document.getElementById('user-profile');
-        if (!userProfileDiv) return;
-        const profileImage = document.getElementById('header-profile-image');
-        const nicknameLink = document.getElementById('header-nickname');
-        const ratingSpan = document.getElementById('header-rating');
-        const logoutBtn = document.getElementById('logout-btn');
-        userProfileDiv.classList.remove('hidden');
-        profileImage.src = userData.photoURL || `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#34495e"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 5.14 2.12C16.43 19.18 14.03 20 12 20z"/></svg>')}`;
-        nicknameLink.textContent = userData.nickname || "User";
-        ratingSpan.textContent = `(${userData.rating})`;
-        const newLogoutBtn = logoutBtn.cloneNode(true);
-        logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
-        newLogoutBtn.addEventListener('click', () => signOut(auth));
-    }
 
 });
-
-
-

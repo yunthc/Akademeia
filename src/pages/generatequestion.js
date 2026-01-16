@@ -1,20 +1,14 @@
 // src/pages/generatequestion.js
-import { auth, db } from '../firebase.js';
+import { db } from '../firebase.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
-import '../auth.js'; // 헤더 UI 업데이트 등 공통 로직 실행
+import { requireAuth } from '../auth.js'; // 헤더 UI 업데이트 등 공통 로직 실행
 
 let currentUserData = null;
 
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        const userDocSnap = await getDoc(doc(db, "users", user.uid));
-        if (userDocSnap.exists()) {
-            currentUserData = { uid: user.uid, ...userDocSnap.data() };
-            initializeGenerateQuestionPage(currentUserData);
-        }
-    }
+requireAuth((user, userData) => {
+    currentUserData = userData;
+    initializeGenerateQuestionPage(currentUserData);
 });
 
 function initializeGenerateQuestionPage(user) {

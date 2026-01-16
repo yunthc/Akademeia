@@ -1,7 +1,7 @@
-import { db, auth } from '../../firebase.js';
+import { db } from '../../firebase.js';
 import { collection, getDocs, addDoc, serverTimestamp, doc, deleteDoc, getDoc, orderBy, query, where, limit, startAfter } from "firebase/firestore";
 import { generateIsomorphicQuestion } from '../../utils/gemini.js';
-import '../../auth.js'; // 공통 헤더 및 인증 리디렉션 로직
+import { requireAuth } from '../../auth.js'; // 공통 헤더 및 인증 리디렉션 로직
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM 요소 캐싱 ---
@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLastPage = false;
     let hasMore = true; // 더 불러올 데이터가 있는지 여부
     let isFetching = false; // 데이터 로딩 중복 방지
+
+    let currentUser = null;
+    requireAuth((user) => {
+        currentUser = user;
+    });
 
     // --- 모달 닫기 로직 ---
     const closeModal = () => modal.classList.add('hidden');
@@ -138,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 domain,
                 tags,
                 createdAt: serverTimestamp(),
-                authorId: auth.currentUser ? auth.currentUser.uid : 'admin',
+                authorId: currentUser ? currentUser.uid : 'admin',
             };
 
             const saveButton = saveProblemForm.querySelector('button[type="submit"]');

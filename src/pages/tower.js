@@ -1,7 +1,19 @@
 import { auth, db } from '../firebase.js';
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { requireAuth } from '../auth.js';
 import { multipleChoiceProblems } from '../problem-data.js';
+
+// BFCache(뒤로가기 캐시)로 인해 로그아웃 후 뒤로가기 시 이전 게임 화면이 복구되는 것을 방지
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
+
+function preventNavigation(event) {
+    event.preventDefault();
+    event.returnValue = '';
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM 요소 ---
@@ -20,14 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const BLITZ_TIME_CAP = 30; // 블리츠 모드 최대 시간 (초)
 
     // --- 페이지 초기화 ---
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) { window.location.href = '/index.html'; return; }
-        const userDocSnap = await getDoc(doc(db, "users", user.uid));
-        if (userDocSnap.exists()) {
-            currentUserProfile = { uid: user.uid, ...userDocSnap.data() };
-            setupHeaderUI(currentUserProfile);
-            initializeLobby();
-        } else { window.location.href = '/profile.html'; }
+    requireAuth((user, userData) => {
+        currentUserProfile = userData;
+        initializeLobby();
     });
 
     // --- 함수 정의 ---
@@ -62,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     async function startChallenge() {
+        window.addEventListener('beforeunload', preventNavigation);
         lobbyScreen.classList.add('hidden');
         if (isBlitzModeOn) {
             blitzScreen.classList.remove('hidden');
@@ -250,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function finishChallenge(reason) {
+        window.removeEventListener('beforeunload', preventNavigation);
         stopAllTimers();
         const finalFloor = currentRun.currentFloor > 0 ? currentRun.currentFloor - 1 : 0;
 
@@ -259,6 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await addDoc(collection(db, "tower_results"), {
                     uid: currentUserProfile.uid,
                     nickname: currentUserProfile.nickname,
+                    photoURL: currentUserProfile.photoURL || null,
                     finalFloor: finalFloor,
                     createdAt: serverTimestamp()
                 });
@@ -284,21 +294,5 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchProblems(settings) {
         const shuffled = multipleChoiceProblems.sort(() => 0.5 - Math.random());
         return shuffled.slice(0, settings.count);
-    }
-    
-    function setupHeaderUI(userData) {
-        const userProfileDiv = document.getElementById('user-profile');
-        if (!userProfileDiv) return;
-        const profileImage = document.getElementById('header-profile-image');
-        const nicknameLink = document.getElementById('header-nickname');
-        const ratingSpan = document.getElementById('header-rating');
-        const logoutBtn = document.getElementById('logout-btn');
-        userProfileDiv.classList.remove('hidden');
-        profileImage.src = userData.photoURL || `data:image/svg+xml,${encodeURIComponent('<svg/>')}`;
-        nicknameLink.textContent = userData.nickname || "User";
-        ratingSpan.textContent = `(${userData.rating})`;
-        const newLogoutBtn = logoutBtn.cloneNode(true);
-        logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
-        newLogoutBtn.addEventListener('click', () => signOut(auth));
     }
 });

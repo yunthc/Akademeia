@@ -39,7 +39,7 @@ onAuthStateChanged(auth, async (user) => {
     const currentPath = window.location.pathname;
     
     // 로그인이 필요한 페이지들의 경로 목록
-    const protectedPaths = ['/pages/dashboard.html', '/pages/mypage.html', '/pages/qna.html', '/pages/question.html', '/pages/generatequestion.html', '/pages/matchmaking.html', '/pages/arena.html','/pages/sprint.html','/pages/tower.html', '/pages/admin/'];
+    const protectedPaths = ['/pages/dashboard.html', '/pages/mypage.html', '/pages/user-profile.html', '/pages/qna.html', '/pages/question.html', '/pages/generatequestion.html', '/pages/matchmaking.html', '/pages/arena.html','/pages/sprint.html','/pages/tower.html', '/pages/admin/', '/pages/leaderboard.html', '/pages/add-problem.html'];
     // 현재 페이지가 로그인이 필요한 페이지인지 확인
     const onProtectedPage = protectedPaths.some(path => currentPath.includes(path));
 
@@ -88,3 +88,23 @@ onAuthStateChanged(auth, async (user) => {
         }
     }
 });
+
+/**
+ * 페이지별 초기화 로직을 위한 헬퍼 함수
+ * 인증된 사용자와 프로필 데이터가 있을 때만 콜백을 실행합니다.
+ * 리다이렉트는 위쪽의 전역 onAuthStateChanged에서 처리되므로 여기서는 신경 쓰지 않아도 됩니다.
+ * @param {Function} callback - (user, userData) => void
+ */
+export function requireAuth(callback) {
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) return; // 리다이렉트는 전역 리스너가 처리함
+
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            callback(user, { uid: user.uid, ...userData });
+        }
+    });
+}

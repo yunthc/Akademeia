@@ -1,7 +1,4 @@
-import { auth, db } from '../firebase.js';
-import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import '../auth.js'; // 헤더 렌더링 및 공통 인증 로직
+import { requireAuth } from '../auth.js'; // 헤더 렌더링 및 공통 인증 로직
 
 const quotes = [
     {
@@ -35,15 +32,10 @@ function displayRandomQuote() {
     }
 }
 
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-            const userData = userDocSnap.data();
-            document.getElementById('dashboard-nickname').textContent = userData.nickname;
-        }
+requireAuth((user, userData) => {
+    const nicknameEl = document.getElementById('dashboard-nickname');
+    if (nicknameEl) {
+        nicknameEl.textContent = userData.nickname;
     }
 });
 

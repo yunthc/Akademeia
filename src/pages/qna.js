@@ -1,8 +1,7 @@
 // src/pages/qna.js (최종 수정본)
-import { auth, db } from '../firebase.js';
-import { onAuthStateChanged } from "firebase/auth";
+import { db } from '../firebase.js';
 import { collection, query, getDocs, orderBy, where, limit, startAfter } from "firebase/firestore";
-import '../auth.js';
+import { requireAuth } from '../auth.js';
 
 let currentFilter = 'all';
 let currentPage = 1;
@@ -235,9 +234,9 @@ function renderPage(page) {
     renderPaginationControls();
 }
 
-onAuthStateChanged(auth, (user) => {
+requireAuth(() => {
     // 사용자가 로그인 상태이고, 페이지가 아직 초기화되지 않았을 때만 실행
-    if (user && !isPageInitialized) {
+    if (!isPageInitialized) {
         isPageInitialized = true; // 초기화 플래그를 true로 설정하여 중복 실행 방지
         initializeQnAPage();
     }

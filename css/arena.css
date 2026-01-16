@@ -77,11 +77,13 @@ main {
         grid-template-columns: auto 1fr; 
         grid-template-rows: auto auto; /* 2개의 행 */
         grid-template-areas: 
-            "timer opponent" /* 1행: 왼쪽은 timer, 오른쪽은 opponent */
-            "timer me";       /* 2행: 왼쪽은 timer, 오른쪽은 me */
+            "timer me" /* 1행: 왼쪽은 timer, 오른쪽은 opponent */
+            "timer opponent";       /* 2행: 왼쪽은 timer, 오른쪽은 me */
         gap: 0.5rem 1rem;  /* 세로 간격 0.5rem, 가로 간격 1rem */
         align-items: center;
     }
+
+
 
     .timer-bar {
         grid-area: timer; /* 이 요소를 'timer' 영역에 배치 */
@@ -251,6 +253,17 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.result-profile-image {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    align-self: center;
 }
 
 .result-nickname {

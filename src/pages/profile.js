@@ -25,7 +25,7 @@ if (profileForm) {
         const user = auth.currentUser;
         if (!user) {
             alert('로그인 정보가 유효하지 않습니다. 다시 로그인해주세요.');
-            window.location.href = '/index.html';
+            window.location.href = '/pages/index.html';
             return;
         }
 
@@ -59,7 +59,7 @@ if (profileForm) {
         try {
             const userDocRef = doc(db, "users", user.uid);
             await setDoc(userDocRef, newUserProfile);
-            window.location.href = '/dashboard.html';
+            window.location.href = '/pages/dashboard.html';
         } catch (error) {
             console.error("프로필 저장 오류:", error);
             alert('프로필 저장에 실패했습니다.');

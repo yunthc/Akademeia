@@ -19,9 +19,11 @@ export default defineConfig({
         
         leaderboard: resolve(__dirname, 'pages/leaderboard.html'), // <-- 추가
         arena: resolve(__dirname, 'pages/arena.html'), // <-- 추가
+        'grand-arena': resolve(__dirname, 'pages/grand-arena.html'), // <-- 추가
         sprint: resolve(__dirname, 'pages/sprint.html'), // <-- 추가
         tower: resolve(__dirname, 'pages/tower.html'),
-        towerleaderboard: resolve(__dirname, 'pages/towerleaderboard.html'), // <-- 추가
+        'user-profile': resolve(__dirname, 'pages/user-profile.html'),
+        'add-problem': resolve(__dirname, 'pages/add-problem.html'),
         'admin-dashboard': resolve(__dirname, 'pages/admin/dashboard.html'),
         'admin-users': resolve(__dirname, 'pages/admin/users.html'),
         'admin-content': resolve(__dirname, 'pages/admin/content.html'),

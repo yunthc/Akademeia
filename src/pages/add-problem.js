@@ -1,18 +1,14 @@
 // /src/pages/add-problem.js
 
-import { db, auth } from '../firebase.js';
+import { db } from '../firebase.js';
 import { collection, doc, serverTimestamp, writeBatch } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { requireAuth } from '../auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     let currentUser = null;
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUser = user;
-        } else {
-            window.location.href = '/pages/index.html';
-        }
+    requireAuth((user) => {
+        currentUser = user;
     });
 
     // --- 기존 단일 문제 등록 로직 ---

@@ -4,22 +4,12 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akademeia</title>
+    <title>Arena - Akademeia</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/arena.css">
-    <style>
-        /* 프로필 이미지를 위한 추가 스타일 */
-        .player-info-bar img {
-            width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
-            margin-right: 8px; border: 1px solid #fff; vertical-align: middle;
-        }
-        .player-info-bar { display: flex; align-items: center; padding: 10px 15px; }
-
-
-    </style>
+    <link rel="stylesheet" href="/css/grand-arena.css">
     <script>
         MathJax = {
             tex: {
@@ -66,62 +56,46 @@
 
         <main>
             <div id="game-screen" class="card hidden">
-                <div class="player-info-container">
-                    <div id="my-info-bar" class="player-info-bar">
-                        <img id="my-profile-image" src="" alt="Me">
-                        <span id="my-nickname"></span>
-                        <span id="my-rating"></span>
+                <div class="game-layout">
+                    <!-- 왼쪽: 상대방 목록 -->
+                    <div class="opponents-panel">
+                        <h3>참가자 (5명)</h3>
+                        <div id="opponents-list" class="opponents-list">
+                            <!-- 자바스크립트로 상대방 아이템이 추가됨 -->
+                        </div>
                     </div>
 
-                    <div class="timer-bar">
-                        <p id="timer-display-area">
+                    <!-- 오른쪽: 게임 영역 -->
+                    <div class="game-main-area">
+                        <div class="timer-bar">
                             <span id="main-timer-display">0.0</span>
-                            <span id="countdown-display" class="hidden">5</span>
-                        </p>
+                        </div>
+                        
+                        <div class="game-header">
+                            <p id="status-message">문제를 풀고 순위를 결정하세요!</p>
+                        </div>
+                        <div class="problem-box">
+                            <p id="problem-text"></p>
+                        </div>
+                        <div id="choices-container" class="choices-grid"></div>
+                        <button id="early-exit-btn" class="btn-primary hidden" style="margin-top: 20px; width: 100%;">결과 바로 확인하기</button>
                     </div>
-                    
-                    <div id="opponent-info-bar" class="player-info-bar">
-                        <img id="opponent-profile-image" src="" alt="Opponent">
-                        <span id="opponent-nickname"></span>
-                        <span id="opponent-rating"></span>
-                    </div>
-                    
-                </div>
-
-                <div class="game-content-area">
-                    <div class="game-header">
-                        <p id="status-message"></p>
-                    </div>
-                    <div class="problem-box">
-                        <p id="problem-text"></p>
-                    </div>
-                    <div id="choices-container" class="choices-grid"></div>
                 </div>
             </div>
 
             <div id="loading-screen" class="card">
-                <p id="loading-text">매칭 정보를 불러오는 중...</p>
+                <p id="loading-text">4명의 대전 상대를 찾고 있습니다...</p>
                 <button id="cancel-match-btn" class="btn-secondary" style="margin-top: 20px;">취소</button>
             </div>
 
             <div id="result-screen" class="hidden">
                 <div class="card result-card">
-                    <h2 id="result-title">승리!</h2>
-                    <div class="result-players">
-                        <div class="player-result-box">
-                            <img id="opponent-profile-image-result" src="" alt="Opponent" class="result-profile-image">
-                            <p id="opponent-nickname-result" class="result-nickname"></p>
-                            <p id="opponent-rating-result" class="result-rating"></p>
-                            <p id="opponent-final-status" class="result-status"></p>
-                        </div>
-                        <span class="vs-text">VS</span>
-                        <div class="player-result-box">
-                            <img id="my-profile-image-result" src="" alt="Me" class="result-profile-image">
-                            <p id="my-nickname-result" class="result-nickname"></p>
-                            <p id="my-rating-result" class="result-rating"></p>
-                            <p id="my-final-status" class="result-status"></p>
-                        </div>
+                    <h2 id="result-title">경기 종료</h2>
+                    
+                    <div id="final-rankings" class="rankings-list">
+                        <!-- 순위 목록이 여기에 생성됨 -->
                     </div>
+
                     <div class="rating-change-box">
                         <h3>레이팅 변동</h3>
                         <p>
@@ -138,6 +112,6 @@
             </div>
         </main>
     </div>
-    <script type="module" src="/src/pages/arena.js"></script>
+    <script type="module" src="/src/pages/grand-arena.js"></script>
 </body>
 </html>
